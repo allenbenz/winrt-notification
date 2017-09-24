@@ -2,9 +2,15 @@
 //!
 //! Tested in windows 10. Untested in Windows 8 and 8.1, might work.
 //!
-//! Currently has no support for Adaptive Content or Actions
+//! Todo:
 //!
-//! Will not work for Windows 7.
+//! * Add support for Adaptive Content
+//! * Add support for Actions
+//!
+//! Known Issues:
+//!
+//! * Will not work for Windows 7.
+//! * Will not build when targeting the 32-bit gnu toolchain (i686-pc-windows-gnu).
 
 /// for xml schema details check out:
 ///

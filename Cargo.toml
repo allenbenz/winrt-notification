@@ -11,6 +11,9 @@ exclude = [
     ".vscode/*"
 ]
 
+[package.metadata.docs.rs]
+default-target = "x86_64-pc-windows-msvc"
+
 [dependencies.winrt]
 version = "0.3.0"
 features = ["windows-data", "windows-ui"]

@@ -2,6 +2,7 @@
 
 [![license](https://img.shields.io/crates/l/winrt-notification.svg)](https://crates.io/crates/winrt-notification/)
 [![version](https://img.shields.io/crates/v/winrt-notification.svg)](https://crates.io/crates/winrt-notification/)
+[![documentation](https://docs.rs/winrt-notification/badge.svg)](https://docs.rs/winrt-notification/)
 [![Build Status](https://img.shields.io/appveyor/ci/allenbenz/winrt-notification.svg)](https://ci.appveyor.com/project/allenbenz/winrt-notification)
 
 An incomplete wrapper over the WinRT toast api
@@ -50,15 +51,15 @@ fn main() {
     Toast::new("application that needs a toast with an image")
         .hero(&Path::new("C:\\absolute\\path\\to\\image.jpeg"), "alt text")
         .icon(
-            &Path::new("/c/this/style/works/too/image.png"),
+            &Path::new("c:/this/style/works/too/image.png"),
             IconCrop::Circular,
             "alt text",
         )
         .title("Lots of pictures here")
         .text1("One above the text as the hero")
         .text2("One to the left as an icon, and several below")
-        .image(&Path::new("/c/photos/sun.png"), "the sun")
-        .image(&Path::new("/c/photos/moon.png"), "the moon")
+        .image(&Path::new("c:/photos/sun.png"), "the sun")
+        .image(&Path::new("c:/photos/moon.png"), "the moon")
         .sound(None) // will be silent
         .show()
         .expect("unable to toast");
