@@ -8,9 +8,13 @@ An incomplete wrapper over the WinRT toast api
 
 Tested in windows 10. Untested in Windows 8 and 8.1, might work.
 
-Currently has no support for Adaptive Content or Actions
+Todo:
+* Add support for Adaptive Content
+* Add support for Actions
 
-Will not work for Windows 7.
+Known Issues:
+* Will not work for Windows 7.
+* Will not build when targeting the 32-bit gnu toolchain (i686-pc-windows-gnu).
 
 ## Usage
 
