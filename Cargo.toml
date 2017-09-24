@@ -1,10 +1,11 @@
 [package]
 name = "winrt-notification"
-version = "0.1.2"
+version = "0.1.4"
 authors = ["allenbenz"]
 keywords = ["notification", "windows", "toast", "notify"]
 readme = "README.md"
 description = "An incomplete wrapper over the WinRT toast api"
+documentation = "https://allenbenz.github.io/winrt-notification/0_1_3/winrt_notification/"
 repository = "https://github.com/allenbenz/winrt-notification"
 license = "MIT"
 exclude = [

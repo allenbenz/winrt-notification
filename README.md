@@ -2,12 +2,13 @@
 
 [![license](https://img.shields.io/crates/l/winrt-notification.svg)](https://crates.io/crates/winrt-notification/)
 [![version](https://img.shields.io/crates/v/winrt-notification.svg)](https://crates.io/crates/winrt-notification/)
-[![documentation](https://docs.rs/winrt-notification/badge.svg)](https://docs.rs/winrt-notification/)
 [![Build Status](https://img.shields.io/appveyor/ci/allenbenz/winrt-notification.svg)](https://ci.appveyor.com/project/allenbenz/winrt-notification)
 
 An incomplete wrapper over the WinRT toast api
 
 Tested in windows 10. Untested in Windows 8 and 8.1, might work.
+
+[Documentation](https://allenbenz.github.io/winrt-notification/0_1_3/winrt_notification/)
 
 Todo:
 * Add support for Adaptive Content
@@ -22,7 +23,7 @@ Known Issues:
 ```toml
 #Cargo.toml
 [dependencies]
-winrt-notification = "0.1"
+winrt-notification = "0.1.4"
 ```
 
 ## Examples
