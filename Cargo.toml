@@ -1,6 +1,6 @@
 [package]
 name = "winrt-notification"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["allenbenz"]
 keywords = ["notification", "windows", "toast", "notify"]
 readme = "README.md"

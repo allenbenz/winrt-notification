@@ -22,8 +22,6 @@
 /// for Windows 7 and older support look into Shell_NotifyIcon
 /// https://msdn.microsoft.com/en-us/library/windows/desktop/ee330740(v=vs.85).aspx
 /// https://softwareengineering.stackexchange.com/questions/222339/using-the-system-tray-notification-area-app-in-windows-7
-
-
 extern crate winrt;
 extern crate xml;
 
@@ -37,6 +35,8 @@ use std::fmt;
 use std::path::Path;
 
 use xml::escape::escape_str_attribute;
+
+pub use winrt::Error;
 
 pub struct Toast {
     duration: String,
@@ -116,9 +116,18 @@ impl fmt::Display for LoopableSound {
 }
 
 impl Toast {
+    /// This can be used if you do not have a AppUserModelID.
+    ///
+    /// However, the toast will erroniously report its origin as powershell.
+    pub const POWERSHELL_APP_ID: &'static str = "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\
+                                                 \\WindowsPowerShell\\v1.0\\powershell.exe";
+
     /// Constructor for the toast builder
     ///
-    /// app_id is used in the toast to inform the user where it came from.
+    /// app_id is the running applications AppUserModelID.
+    /// https://msdn.microsoft.com/en-us/library/windows/desktop/dd378459(v=vs.85).aspx
+    ///
+    /// If the program you are using this in was not installed, use Toast::POWERSHELL_APP_ID for now
     #[allow(dead_code)]
     pub fn new(app_id: &str) -> Toast {
         Toast {
@@ -288,7 +297,7 @@ mod tests {
 
     #[test]
     fn simple_toast() {
-        let toast = Toast::new("winrt-simple-notify");
+        let toast = Toast::new(Toast::POWERSHELL_APP_ID);
         toast
             .hero(
                 &Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/test/flower.jpeg"),

@@ -8,11 +8,12 @@ An incomplete wrapper over the WinRT toast api
 
 Tested in windows 10. Untested in Windows 8 and 8.1, might work.
 
-[Documentation](https://allenbenz.github.io/winrt-notification/0_1_3/winrt_notification/)
+[Documentation](https://allenbenz.github.io/winrt-notification/0_1_5/winrt_notification/)
 
 Todo:
 * Add support for Adaptive Content
 * Add support for Actions
+* A method of generating a valid app id
 
 Known Issues:
 * Will not work for Windows 7.
@@ -23,7 +24,7 @@ Known Issues:
 ```toml
 #Cargo.toml
 [dependencies]
-winrt-notification = "0.1.4"
+winrt-notification = "0.1.5"
 ```
 
 ## Examples
@@ -33,7 +34,7 @@ extern crate winrt_notification;
 use winrt_notification::{Duration, Sound, Toast};
 
 fn main() {
-    Toast::new("My application name")
+    Toast::new(Toast::POWERSHELL_APP_ID)
         .title("Look at this flip!")
         .text1("(╯°□°）╯︵ ┻━┻")
         .sound(Some(Sound::SMS))
@@ -49,7 +50,7 @@ use std::path::Path;
 use winrt_notification::{IconCrop, Toast};
 
 fn main() {
-    Toast::new("application that needs a toast with an image")
+    Toast::new("Your AppUserModeId")
         .hero(&Path::new("C:\\absolute\\path\\to\\image.jpeg"), "alt text")
         .icon(
             &Path::new("c:/this/style/works/too/image.png"),
