@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Duration",""],["Error","Represents an error as a result of a Windows Runtime method call."],["IconCrop",""],["LoopableSound","Sounds suitable for Looping"],["Sound",""]],"struct":[["Toast",""]]});
