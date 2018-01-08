@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Toast` struct in crate `winrt_notification`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Toast">
+
+    <title>winrt_notification::Toast - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
+        
+        <p class='location'>Struct Toast</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.title">title</a><a href="#method.text1">text1</a><a href="#method.text2">text2</a><a href="#method.duration">duration</a><a href="#method.icon">icon</a><a href="#method.hero">hero</a><a href="#method.image">image</a><a href="#method.sound">sound</a><a href="#method.show">show</a></div></div><p class='location'><a href='index.html'>winrt_notification</a></p><script>window.sidebarCurrent = {name: 'Toast', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>winrt_notification</a>::<wbr><a class="struct" href=''>Toast</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/winrt_notification/lib.rs.html#46-54' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Toast { /* fields omitted */ }</pre>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#123-324' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedconstant.POWERSHELL_APP_ID' class="associatedconstant"><span id='POWERSHELL_APP_ID.v' class='invisible'><code>pub const <a href='#associatedconstant.POWERSHELL_APP_ID' class="constant"><b>POWERSHELL_APP_ID</b></a>: &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span></h4>
+<div class='docblock'><pre class="rust ">
+<span class="ident">POWERSHELL_APP_ID</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe&quot;</span></pre>
+<p>This can be used if you do not have a AppUserModelID.</p>
+
+<p>However, the toast will erroniously report its origin as powershell.</p>
+</div><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>(app_id: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#138-148' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Constructor for the toast builder.</p>
+
+<p>app_id is the running application&#39;s <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd378459(v=vs.85).aspx">AppUserModelID</a>.</p>
+
+<p>If the program you are using this in was not installed, use Toast::POWERSHELL_APP_ID for now</p>
+</div><h4 id='method.title' class="method"><span id='title.v' class='invisible'><code>pub fn <a href='#method.title' class='fnname'>title</a>(self, content: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#154-157' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Sets the title of the toast.</p>
+
+<p>Will be white.
+Supports Unicode ✓</p>
+</div><h4 id='method.text1' class="method"><span id='text1.v' class='invisible'><code>pub fn <a href='#method.text1' class='fnname'>text1</a>(self, content: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#163-166' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Add/Sets the first line of text below title.</p>
+
+<p>Will be grey.
+Supports Unicode ✓</p>
+</div><h4 id='method.text2' class="method"><span id='text2.v' class='invisible'><code>pub fn <a href='#method.text2' class='fnname'>text2</a>(self, content: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#172-175' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Add/Sets the second line of text below title.</p>
+
+<p>Will be grey.
+Supports Unicode ✓</p>
+</div><h4 id='method.duration' class="method"><span id='duration.v' class='invisible'><code>pub fn <a href='#method.duration' class='fnname'>duration</a>(self, duration: <a class="enum" href="../winrt_notification/enum.Duration.html" title="enum winrt_notification::Duration">Duration</a>) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#178-184' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Set the length of time to show the toast</p>
+</div><h4 id='method.icon' class="method"><span id='icon.v' class='invisible'><code>pub fn <a href='#method.icon' class='fnname'>icon</a>(self, source: &amp;<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.Path.html" title="struct std::path::Path">Path</a>, crop: <a class="enum" href="../winrt_notification/enum.IconCrop.html" title="enum winrt_notification::IconCrop">IconCrop</a>, alt_text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#190-209' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Set the icon shown in the upper left of the toast</p>
+
+<p>The default is determined by your app id.
+If you are using the powershell workaround, it will be the powershell icon</p>
+</div><h4 id='method.hero' class="method"><span id='hero.v' class='invisible'><code>pub fn <a href='#method.hero' class='fnname'>hero</a>(self, source: &amp;<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.Path.html" title="struct std::path::Path">Path</a>, alt_text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#214-227' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Add/Set a Hero image for the toast.</p>
+
+<p>This will be above the toast text and the icon.</p>
+</div><h4 id='method.image' class="method"><span id='image.v' class='invisible'><code>pub fn <a href='#method.image' class='fnname'>image</a>(self, source: &amp;<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.Path.html" title="struct std::path::Path">Path</a>, alt_text: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#233-245' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Add an image to the toast</p>
+
+<p>May be done many times.
+Will appear below text.</p>
+</div><h4 id='method.sound' class="method"><span id='sound.v' class='invisible'><code>pub fn <a href='#method.sound' class='fnname'>sound</a>(self, src: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../winrt_notification/enum.Sound.html" title="enum winrt_notification::Sound">Sound</a>&gt;) -&gt; <a class="struct" href="../winrt_notification/struct.Toast.html" title="struct winrt_notification::Toast">Toast</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#250-266' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Set the sound for the toast or silence it</p>
+
+<p>Default is <a href="enum.Sound.html">Sound::IM</a></p>
+</div><h4 id='method.show' class="method"><span id='show.v' class='invisible'><code>pub fn <a href='#method.show' class='fnname'>show</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="enum" href="../winrt_notification/enum.Error.html" title="enum winrt_notification::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winrt_notification/lib.rs.html#269-323' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Display the toast on the screen</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "winrt_notification";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
