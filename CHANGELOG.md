@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0
+ - Added Windows 8.1 support
+ - Incremented winrt dependency
+
 ## 0.1.5
 
 - Re-export winrt::Error (#2).

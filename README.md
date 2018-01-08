@@ -6,7 +6,7 @@
 
 An incomplete wrapper over the WinRT toast api
 
-Tested in windows 10. Untested in Windows 8 and 8.1, might work.
+Tested in Windows 10 and 8.1. Untested in Windows 8, might work.
 
 [Documentation](https://allenbenz.github.io/winrt-notification/0_1_5/winrt_notification/)
 
@@ -19,12 +19,15 @@ Known Issues:
 * Will not work for Windows 7.
 * Will not build when targeting the 32-bit gnu toolchain (i686-pc-windows-gnu).
 
+Limitations:
+* Windows 8.1 only supports a single image, the last image (icon, hero, image) will be the one on the toast
+
 ## Usage
 
 ```toml
 #Cargo.toml
 [dependencies]
-winrt-notification = "0.1.5"
+winrt-notification = "0.2.0"
 ```
 
 ## Examples
@@ -66,5 +69,4 @@ fn main() {
         .show()
         .expect("unable to toast");
 }
-
 ```

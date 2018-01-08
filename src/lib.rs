@@ -1,6 +1,6 @@
 //! An incomplete wrapper over the WinRT toast api
 //!
-//! Tested in windows 10. Untested in Windows 8 and 8.1, might work.
+//! Tested in Windows 10 and 8.1. Untested in Windows 8, might work.
 //!
 //! Todo:
 //!
@@ -11,6 +11,10 @@
 //!
 //! * Will not work for Windows 7.
 //! * Will not build when targeting the 32-bit gnu toolchain (i686-pc-windows-gnu).
+//!
+//! Limitations:
+//!
+//! * Windows 8.1 only supports a single image, the last image (icon, hero, image) will be the one on the toast
 
 /// for xml schema details check out:
 ///
@@ -22,19 +26,20 @@
 /// for Windows 7 and older support look into Shell_NotifyIcon
 /// https://msdn.microsoft.com/en-us/library/windows/desktop/ee330740(v=vs.85).aspx
 /// https://softwareengineering.stackexchange.com/questions/222339/using-the-system-tray-notification-area-app-in-windows-7
+extern crate winapi;
 extern crate winrt;
 extern crate xml;
 
 use winrt::{FastHString, RuntimeContext};
 use winrt::windows::data::xml::dom::IXmlDocumentIO;
-use winrt::windows::ui::notifications::{ToastNotification, ToastNotificationManager,
-                                        ToastTemplateType_ToastText01};
-
+use winrt::windows::ui::notifications::{ToastNotification, ToastNotificationManager};
+use winrt::windows::ui::notifications::ToastTemplateType;
 
 use std::fmt;
 use std::path::Path;
 
 use xml::escape::escape_str_attribute;
+mod windows_check;
 
 pub use winrt::Error;
 
@@ -122,17 +127,18 @@ impl Toast {
     pub const POWERSHELL_APP_ID: &'static str = "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\
                                                  \\WindowsPowerShell\\v1.0\\powershell.exe";
 
-    /// Constructor for the toast builder
+    /// Constructor for the toast builder.
     ///
-    /// app_id is the running applications AppUserModelID.
-    /// https://msdn.microsoft.com/en-us/library/windows/desktop/dd378459(v=vs.85).aspx
+    /// app_id is the running application's [AppUserModelID][1].
+    ///
+    /// [1]: https://msdn.microsoft.com/en-us/library/windows/desktop/dd378459(v=vs.85).aspx
     ///
     /// If the program you are using this in was not installed, use Toast::POWERSHELL_APP_ID for now
     #[allow(dead_code)]
     pub fn new(app_id: &str) -> Toast {
         Toast {
             duration: String::new(),
-            title: format!("<text>{}</text>", escape_str_attribute(app_id)),
+            title: String::new(),
             line1: String::new(),
             line2: String::new(),
             images: String::new(),
@@ -146,7 +152,7 @@ impl Toast {
     /// Will be white.
     /// Supports Unicode ✓
     pub fn title(mut self, content: &str) -> Toast {
-        self.title = format!("<text>{}</text>", escape_str_attribute(content));
+        self.title = format!(r#"<text id="1">{}</text>"#, escape_str_attribute(content));
         self
     }
 
@@ -155,7 +161,7 @@ impl Toast {
     /// Will be grey.
     /// Supports Unicode ✓
     pub fn text1(mut self, content: &str) -> Toast {
-        self.line1 = format!("<text>{}</text>", escape_str_attribute(content));
+        self.line1 = format!(r#"<text id="2">{}</text>"#, escape_str_attribute(content));
         self
     }
 
@@ -164,7 +170,7 @@ impl Toast {
     /// Will be grey.
     /// Supports Unicode ✓
     pub fn text2(mut self, content: &str) -> Toast {
-        self.line2 = format!("<text>{}</text>", escape_str_attribute(content));
+        self.line2 = format!(r#"<text id="3">{}</text>"#, escape_str_attribute(content));
         self
     }
 
@@ -179,35 +185,45 @@ impl Toast {
 
     /// Set the icon shown in the upper left of the toast
     ///
-    /// The default is supposed to be determined by your app id.
-    /// In practice it will be blank.
+    /// The default is determined by your app id.
+    /// If you are using the powershell workaround, it will be the powershell icon
     pub fn icon(mut self, source: &Path, crop: IconCrop, alt_text: &str) -> Toast {
-        let crop_type_attr = match crop {
-            IconCrop::Square => "".to_string(),
-            IconCrop::Circular => "hint-crop=\"circle\"".to_string(),
-        };
+        if windows_check::is_newer_than_windows81() {
+            let crop_type_attr = match crop {
+                IconCrop::Square => "".to_string(),
+                IconCrop::Circular => "hint-crop=\"circle\"".to_string(),
+            };
 
-        self.images = format!(
-            "{}<image placement=\"appLogoOverride\" {} src=\"file:///{}\" alt=\"{}\" />",
-            self.images,
-            crop_type_attr,
-            escape_str_attribute(&source.display().to_string()),
-            escape_str_attribute(alt_text)
-        );
-        self
+            self.images = format!(
+                r#"{}<image placement="appLogoOverride" {} src="file:///{}" alt="{}" />"#,
+                self.images,
+                crop_type_attr,
+                escape_str_attribute(&source.display().to_string()),
+                escape_str_attribute(alt_text)
+            );
+            self
+        } else {
+            // Win81 rejects the above xml so we fallback to a simpler call
+            self.image(source, alt_text)
+        }
     }
 
     /// Add/Set a Hero image for the toast.
     ///
     /// This will be above the toast text and the icon.
     pub fn hero(mut self, source: &Path, alt_text: &str) -> Toast {
-        self.images = format!(
-            "{}<image placement=\"Hero\" src=\"file:///{}\" alt=\"{}\" />",
-            self.images,
-            escape_str_attribute(&source.display().to_string()),
-            escape_str_attribute(alt_text)
-        );
-        self
+        if windows_check::is_newer_than_windows81() {
+            self.images = format!(
+                r#"{}<image placement="Hero" src="file:///{}" alt="{}" />"#,
+                self.images,
+                escape_str_attribute(&source.display().to_string()),
+                escape_str_attribute(alt_text)
+            );
+            self
+        } else {
+            // win81 rejects the above xml so we fallback to a simpler call
+            self.image(source, alt_text)
+        }
     }
 
     /// Add an image to the toast
@@ -215,8 +231,12 @@ impl Toast {
     /// May be done many times.
     /// Will appear below text.
     pub fn image(mut self, source: &Path, alt_text: &str) -> Toast {
+        if !windows_check::is_newer_than_windows81() {
+            // win81 cannot have more than 1 image and shows nothing if there is more than that
+            self.images = "".to_owned();
+        }
         self.images = format!(
-            "{}<image src=\"file:///{}\" alt=\"{}\" />",
+            r#"{}<image id="1" src="file:///{}" alt="{}" />"#,
             self.images,
             escape_str_attribute(&source.display().to_string()),
             escape_str_attribute(alt_text)
@@ -232,14 +252,14 @@ impl Toast {
             None => "<audio silent=\"true\" />".to_owned(),
             Some(Sound::Default) => "".to_owned(),
             Some(Sound::Loop(sound)) => format!(
-                "<audio loop=\"true\" src=\"ms-winsoundevent:Notification.Looping.{}\" />",
+                r#"<audio loop="true" src="ms-winsoundevent:Notification.Looping.{}" />"#,
                 sound
             ),
             Some(Sound::Single(sound)) => format!(
-                "<audio src=\"ms-winsoundevent:Notification.Looping.{}\" />",
+                r#"<audio src="ms-winsoundevent:Notification.Looping.{}" />"#,
                 sound
             ),
-            Some(sound) => format!("<audio src=\"ms-winsoundevent:Notification.{}\" />", sound),
+            Some(sound) => format!(r#"<audio src="ms-winsoundevent:Notification.{}" />"#, sound),
         };
 
         self
@@ -251,16 +271,29 @@ impl Toast {
 
         //using this to get an instance of XmlDocument
         let toast_xml =
-            ToastNotificationManager::get_template_content(ToastTemplateType_ToastText01).unwrap();
+            ToastNotificationManager::get_template_content(ToastTemplateType::ToastText01).unwrap();
 
         //XmlDocument implements IXmlDocumentIO so this is safe
         let toast_xml_as_xml_io = toast_xml.query_interface::<IXmlDocumentIO>().unwrap();
 
         unsafe {
+            let template_binding = if windows_check::is_newer_than_windows81() {
+                "ToastGeneric"
+            } else
+            //win8 or win81
+            {
+                // Need to do this or an empty placeholder will be shown if no image is set
+                if self.images == "" {
+                    "ToastText04"
+                } else {
+                    "ToastImageAndText04"
+                }
+            };
+
             (*toast_xml_as_xml_io).load_xml(&FastHString::new(&format!(
                 "<toast {}>
                         <visual>
-                            <binding template=\"ToastGeneric\">
+                            <binding template=\"{}\">
                             {}
                             {}{}{}
                             </binding>
@@ -268,6 +301,7 @@ impl Toast {
                         {}
                     </toast>",
                 self.duration,
+                template_binding,
                 self.images,
                 self.title,
                 self.line1,
@@ -288,7 +322,6 @@ impl Toast {
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
