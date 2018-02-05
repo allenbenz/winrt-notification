@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.1
+ - Implemented from_str on Sound enum.
+
 ## 0.2.0
  - Added Windows 8.1 support
  - Incremented winrt dependency

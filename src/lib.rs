@@ -30,6 +30,10 @@ extern crate winapi;
 extern crate winrt;
 extern crate xml;
 
+extern crate strum;
+#[macro_use]
+extern crate strum_macros;
+
 use winrt::{FastHString, RuntimeContext};
 use winrt::windows::data::xml::dom::IXmlDocumentIO;
 use winrt::windows::ui::notifications::{ToastNotification, ToastNotificationManager};
@@ -61,7 +65,7 @@ pub enum Duration {
     Long,
 }
 
-#[derive(Debug)]
+#[derive(Debug, EnumString)]
 pub enum Sound {
     Default,
     IM,
@@ -69,8 +73,10 @@ pub enum Sound {
     Reminder,
     SMS,
     /// Play the loopable sound only once
+    #[strum(disabled = "true")]
     Single(LoopableSound),
     /// Loop the loopable sound for the entire duration of the toast
+    #[strum(disabled = "true")]
     Loop(LoopableSound),
 }
 

@@ -1,6 +1,6 @@
 [package]
 name = "winrt-notification"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["allenbenz"]
 keywords = ["notification", "windows", "toast", "notify"]
 readme = "README.md"
@@ -22,3 +22,5 @@ features = ["windows-data", "windows-ui"]
 [dependencies]
 xml-rs = "0.6.1"
 winapi = "0.3.0"
+strum = "0.8.0"
+strum_macros = "0.8.0"
