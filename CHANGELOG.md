@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.3
+ - Fixed issue where toasts weren't appearing after a windows update.
+
 ## 0.2.2
  - Fixed linking issue introduced with winapi 0.3.4 [#4][i4]
 
