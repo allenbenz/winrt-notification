@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Duration",""],["IconCrop",""],["LoopableSound","Sounds suitable for Looping"],["Sound",""]],"struct":[["Error","A WinRT error object consists of both an error code as well as detailed error information for debugging."],["Toast",""]]});

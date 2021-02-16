@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["BUFFER_SIZE","The size of the ConstBuffer"]],"fn":[["sha1","A const evaluated sha1 function."]],"struct":[["ConstBuffer","A buffer of a constant size suitable for use in const contexts"],["Digest","A sha1 digest"]]});

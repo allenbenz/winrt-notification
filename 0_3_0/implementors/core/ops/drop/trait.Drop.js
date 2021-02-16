@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["syn"] = [{"text":"impl&lt;'a&gt; Drop for ParseBuffer&lt;'a&gt;","synthetic":false,"types":[]}];
+implementors["windows"] = [{"text":"impl Drop for IUnknown","synthetic":false,"types":[]},{"text":"impl&lt;T:&nbsp;RuntimeType&gt; Drop for Array&lt;T&gt;","synthetic":false,"types":[]},{"text":"impl Drop for Waiter","synthetic":false,"types":[]},{"text":"impl Drop for BString","synthetic":false,"types":[]},{"text":"impl Drop for CoString","synthetic":false,"types":[]},{"text":"impl Drop for HString","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
