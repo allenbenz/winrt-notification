@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.0
+ - Switched to the windows-rs crate, dropped winapi and winrt crate.
+
 ## 0.2.3
  - Fixed issue where toasts weren't appearing after a windows update.
 
