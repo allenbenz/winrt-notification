@@ -324,7 +324,9 @@ impl Toast {
             let toast_notifier = ToastNotificationManager::create_toast_notifier_with_id(
                 &FastHString::new(&self.app_id),
             )?;
-            toast_notifier.show(&*toast_template)
+            let result = toast_notifier.show(&*toast_template);
+            std::thread::sleep(std::time::Duration::from_millis(10));
+            result
         }
     }
 }
