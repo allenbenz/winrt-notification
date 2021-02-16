@@ -1,1 +1,2 @@
 error_on_unformatted = false
+imports_layout = "Vertical"

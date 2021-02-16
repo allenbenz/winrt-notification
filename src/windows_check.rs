@@ -1,19 +1,21 @@
 // Lifted from mattmccarty's work in os_info
-use std::mem::zeroed;
-use std::mem::size_of;
-use winapi::shared::ntdef::NTSTATUS;
-use winapi::shared::minwindef::DWORD;
-use winapi::shared::ntstatus::STATUS_SUCCESS;
+#[allow(dead_code)]
+mod bindings {
+    ::windows::include_bindings!();
+}
+
+use bindings::{
+    windows::win32::system_services::NTSTATUS,
+    windows::win32::windows_programming::*,
+};
 
 #[cfg(target_arch = "x86")]
-use winapi::um::winnt::OSVERSIONINFOEXA;
-
-#[cfg(not(target_arch = "x86"))]
-use winapi::um::winnt::OSVERSIONINFOEXW;
-
+use OSVERSIONINFOEXA;
 #[cfg(target_arch = "x86")]
 type OSVERSIONINFOEX = OSVERSIONINFOEXA;
 
+#[cfg(not(target_arch = "x86"))]
+use OSVERSIONINFOEXW;
 #[cfg(not(target_arch = "x86"))]
 type OSVERSIONINFOEX = OSVERSIONINFOEXW;
 
@@ -25,11 +27,10 @@ extern "system" {
 
 pub fn is_newer_than_windows81() -> bool {
     unsafe {
-        let mut info: OSVERSIONINFOEX = { zeroed() };
-        info.dwOSVersionInfoSize = size_of::<OSVERSIONINFOEX>() as DWORD;
+        let mut info: OSVERSIONINFOEX = OSVERSIONINFOEX::default();
 
-        if RtlGetVersion(&mut info) == STATUS_SUCCESS {
-            info.dwMajorVersion > 6
+        if RtlGetVersion(&mut info) == NTSTATUS(0) {
+            info.dw_major_version > 6
         } else {
             false
         }

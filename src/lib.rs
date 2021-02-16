@@ -26,18 +26,23 @@
 /// for Windows 7 and older support look into Shell_NotifyIcon
 /// https://msdn.microsoft.com/en-us/library/windows/desktop/ee330740(v=vs.85).aspx
 /// https://softwareengineering.stackexchange.com/questions/222339/using-the-system-tray-notification-area-app-in-windows-7
-extern crate winapi;
-extern crate winrt;
+extern crate windows;
 extern crate xml;
 
-extern crate strum;
 #[macro_use]
-extern crate strum_macros;
+extern crate strum;
 
-use winrt::{FastHString, RuntimeContext};
-use winrt::windows::data::xml::dom::IXmlDocumentIO;
-use winrt::windows::ui::notifications::{ToastNotification, ToastNotificationManager};
-use winrt::windows::ui::notifications::ToastTemplateType;
+#[allow(dead_code)]
+mod bindings {
+    ::windows::include_bindings!();
+}
+
+use bindings::{
+    windows::data::xml::dom::XmlDocument,
+    windows::ui::notifications::ToastNotification,
+    windows::ui::notifications::ToastNotificationManager,
+    windows::HString,
+};
 
 use std::fmt;
 use std::path::Path;
@@ -45,7 +50,7 @@ use std::path::Path;
 use xml::escape::escape_str_attribute;
 mod windows_check;
 
-pub use winrt::Error;
+pub use windows::Error;
 
 pub struct Toast {
     duration: String,
@@ -73,10 +78,10 @@ pub enum Sound {
     Reminder,
     SMS,
     /// Play the loopable sound only once
-    #[strum(disabled = "true")]
+    #[strum(disabled)]
     Single(LoopableSound),
     /// Loop the loopable sound for the entire duration of the toast
-    #[strum(disabled = "true")]
+    #[strum(disabled)]
     Loop(LoopableSound),
 }
 
@@ -185,7 +190,8 @@ impl Toast {
         self.duration = match duration {
             Duration::Long => "duration=\"long\"",
             Duration::Short => "duration=\"short\"",
-        }.to_owned();
+        }
+        .to_owned();
         self
     }
 
@@ -272,68 +278,57 @@ impl Toast {
     }
 
     /// Display the toast on the screen
-    pub fn show(&self) -> Result<(), winrt::Error> {
-        let _rt = RuntimeContext::init();
-
+    pub fn show(&self) -> windows::Result<()> {
         //using this to get an instance of XmlDocument
-        let toast_xml =
-            ToastNotificationManager::get_template_content(ToastTemplateType::ToastText01).unwrap();
+        let toast_xml = XmlDocument::new()?;
 
-        //XmlDocument implements IXmlDocumentIO so this is safe
-        let toast_xml_as_xml_io = toast_xml.query_interface::<IXmlDocumentIO>().unwrap();
-
-        unsafe {
-            let template_binding = if windows_check::is_newer_than_windows81() {
-                "ToastGeneric"
-            } else
-            //win8 or win81
-            {
-                // Need to do this or an empty placeholder will be shown if no image is set
-                if self.images == "" {
-                    "ToastText04"
-                } else {
-                    "ToastImageAndText04"
-                }
-            };
-
-            (*toast_xml_as_xml_io).load_xml(&FastHString::new(&format!(
-                "<toast {}>
-                        <visual>
-                            <binding template=\"{}\">
-                            {}
-                            {}{}{}
-                            </binding>
-                        </visual>
-                        {}
-                    </toast>",
-                self.duration,
-                template_binding,
-                self.images,
-                self.title,
-                self.line1,
-                self.line2,
-                self.audio,
-            )))?
+        let template_binding = if windows_check::is_newer_than_windows81() {
+            "ToastGeneric"
+        } else
+        //win8 or win81
+        {
+            // Need to do this or an empty placeholder will be shown if no image is set
+            if self.images == "" {
+                "ToastText04"
+            } else {
+                "ToastImageAndText04"
+            }
         };
 
+        toast_xml.load_xml(HString::from(format!(
+            "<toast {}>
+                    <visual>
+                        <binding template=\"{}\">
+                        {}
+                        {}{}{}
+                        </binding>
+                    </visual>
+                    {}
+                </toast>",
+            self.duration,
+            template_binding,
+            self.images,
+            self.title,
+            self.line1,
+            self.line2,
+            self.audio,
+        )))?;
+
         // Create the toast and attach event listeners
-        let toast_template = ToastNotification::create_toast_notification(&*toast_xml)?;
+        let toast_template = ToastNotification::create_toast_notification(toast_xml)?;
 
         // Show the toast.
-        unsafe {
-            let toast_notifier = ToastNotificationManager::create_toast_notifier_with_id(
-                &FastHString::new(&self.app_id),
-            )?;
-            let result = toast_notifier.show(&*toast_template);
-            std::thread::sleep(std::time::Duration::from_millis(10));
-            result
-        }
+        let toast_notifier =
+            ToastNotificationManager::create_toast_notifier_with_id(HString::from(&self.app_id))?;
+        let result = toast_notifier.show(&toast_template);
+        std::thread::sleep(std::time::Duration::from_millis(10));
+        result
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use ::*;
+    use crate::*;
     use std::path::Path;
 
     #[test]
@@ -356,6 +351,19 @@ mod tests {
             //.sound(Some(Sound::Loop(LoopableSound::Call)))
             //.sound(Some(Sound::SMS))
             .sound(None)
+            .show()
+            // silently consume errors
+            .expect("notification failed");
+    }
+
+    #[test]
+    fn text_toast() {
+        Toast::new(Toast::POWERSHELL_APP_ID)
+            .title("just text in this toast")
+            .text1("line1")
+            .text2("line2")
+            .duration(Duration::Short)
+            .sound(Some(Sound::SMS))
             .show()
             // silently consume errors
             .expect("notification failed");

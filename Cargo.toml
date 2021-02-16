@@ -1,6 +1,6 @@
 [package]
 name = "winrt-notification"
-version = "0.2.3"
+version = "0.3.0"
 authors = ["allenbenz"]
 keywords = ["notification", "windows", "toast", "notify"]
 readme = "README.md"
@@ -8,19 +8,16 @@ description = "An incomplete wrapper over the WinRT toast api"
 documentation = "https://allenbenz.github.io/winrt-notification/0_1_3/winrt_notification/"
 repository = "https://github.com/allenbenz/winrt-notification"
 license = "MIT"
-exclude = [
-    ".vscode/*"
-]
+exclude = [".vscode/*"]
+edition = '2018'
 
 [package.metadata.docs.rs]
 default-target = "x86_64-pc-windows-msvc"
 
-[dependencies.winrt]
-version = "0.4.0"
-features = ["windows-data", "windows-ui"]
-
 [dependencies]
-xml-rs = "0.6.1"
-winapi = "^0.3.4"
-strum = "0.8.0"
-strum_macros = "0.8.0"
+xml-rs = "0.8.3"
+strum = { version = "0.20", features = ["derive"] }
+windows = "0.3.1"
+
+[build-dependencies]
+windows = "0.3.1"
