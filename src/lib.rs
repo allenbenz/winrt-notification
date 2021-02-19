@@ -57,6 +57,7 @@ pub struct Toast {
     app_id: String,
 }
 
+#[derive(Clone, Copy)]
 pub enum Duration {
     /// 7 seconds
     Short,
@@ -65,7 +66,7 @@ pub enum Duration {
     Long,
 }
 
-#[derive(Debug, EnumString)]
+#[derive(Debug, EnumString, Clone, Copy)]
 pub enum Sound {
     Default,
     IM,
@@ -81,8 +82,8 @@ pub enum Sound {
 }
 
 /// Sounds suitable for Looping
-#[derive(Debug)]
 #[allow(dead_code)]
+#[derive(Debug, Clone, Copy)]
 pub enum LoopableSound {
     Alarm,
     Alarm2,
@@ -107,6 +108,7 @@ pub enum LoopableSound {
 }
 
 #[allow(dead_code)]
+#[derive(Clone, Copy)]
 pub enum IconCrop {
     Square,
     Circular,
