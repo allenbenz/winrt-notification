@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.4
+ - Made most enums Copy/Clonable.
+
 ## 0.2.3
  - Fixed issue where toasts weren't appearing after a windows update.
 
