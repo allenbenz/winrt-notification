@@ -1,9 +1,5 @@
 // How to create a toast without using this library
 
-// Note while this shows an action in the xml and buttons will appear on the toast
-// these won't do anything other than dismiss the toast.
-// Wiring it up to do that is still being explored.
-
 extern crate xml;
 use std::path::Path;
 use xml::escape::escape_str_attribute;
@@ -50,11 +46,6 @@ fn do_toast() -> windows::Result<()> {
                 </visual>
                 <audio src="ms-winsoundevent:Notification.SMS" />
                 <!-- <audio silent="true" /> -->
-                <!-- See https://docs.microsoft.com/en-us/windows/uwp/design/shell/tiles-and-notifications/toast-pending-update?tabs=xml for possible actions -->
-                <actions>
-                    <action content="check" arguments="check" />
-                    <action content="cancel" arguments="cancel" />
-                </actions>
             </toast>"#,
         escape_str_attribute(&Path::new("C:\\path_to_image_in_toast.jpg").display().to_string()),
     ))).expect("the xml is malformed");
