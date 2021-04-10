@@ -109,3 +109,7 @@ build: false
 # environment variable.
 test_script:
 - cargo test --verbose %cargoflags%
+
+skip_commits:
+  files:
+    - '*.md'
