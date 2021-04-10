@@ -13,11 +13,11 @@ Tested in Windows 10 and 8.1. Untested in Windows 8, might work.
 Todo:
 * Add support for Adaptive Content
 * Add support for Actions
-* A method of generating a valid app id
 
 Known Issues:
 * Will not work for Windows 7.
-* Will not build when targeting the 32-bit gnu toolchain (i686-pc-windows-gnu).
+* Requires MSYS to build when targeting gnu toolchain (i686-pc-windows-gnu and x86_64-pc-windows-gnu).
+  - May work with some other method, but the rust gnu toolchain cannot link this crate with just rustup and cargo.
 
 Limitations:
 * Windows 8.1 only supports a single image, the last image (icon, hero, image) will be the one on the toast
