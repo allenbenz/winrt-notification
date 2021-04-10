@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.1
+ - Allow the crate build with the gnu toolchain with msys [#4][i4]
+
 ## 0.3.0
  - Switched to the windows-rs crate, dropped winapi and winrt crate.
 
