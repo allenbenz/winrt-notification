@@ -9,6 +9,7 @@ An incomplete wrapper over the WinRT toast api
 Tested in Windows 10 and 8.1. Untested in Windows 8, might work.
 
 [0.2 Documentation](https://allenbenz.github.io/winrt-notification/0_2_0/winrt_notification/index.html)
+
 [0.3 Documentation](https://allenbenz.github.io/winrt-notification/0_3_0/winrt_notification/index.html)
 
 Todo:
