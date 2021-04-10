@@ -19,8 +19,7 @@ use OSVERSIONINFOEXW;
 #[cfg(not(target_arch = "x86"))]
 type OSVERSIONINFOEX = OSVERSIONINFOEXW;
 
-#[cfg_attr(target_env = "gnu", link(name = "winapi_ntdll"))]
-#[cfg_attr(target_env = "msvc", link(name = "ntdll"))]
+#[link(name = "ntdll")]
 extern "system" {
     pub fn RtlGetVersion(lpVersionInformation: &mut OSVERSIONINFOEX) -> NTSTATUS;
 }
