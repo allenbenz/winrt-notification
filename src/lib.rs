@@ -32,24 +32,30 @@ extern crate xml;
 #[macro_use]
 extern crate strum;
 
-mod bindings;
+#[allow(dead_code)]
+mod bindings {
+    ::windows::include_bindings!();
+}
 
 use bindings::{
     Windows::Data::Xml::Dom::XmlDocument,
-    Windows::UI::Notifications::ToastNotification,
+    Windows::Foundation::TypedEventHandler,
     Windows::UI::Notifications::ToastNotificationManager,
 };
+use windows::Interface;
 
 use std::fmt;
 use std::path::Path;
 
 use xml::escape::escape_str_attribute;
+mod toast_action;
 mod windows_check;
 
-pub use windows::{
-    Error,
-    HSTRING,
-};
+pub use windows::{Error, HSTRING};
+
+pub use toast_action::{ToastAction, ToastActivationType};
+
+pub use bindings::Windows::UI::Notifications::{ToastActivatedEventArgs, ToastDismissedEventArgs, ToastFailedEventArgs, ToastNotification};
 
 pub struct Toast {
     duration: String,
@@ -59,6 +65,7 @@ pub struct Toast {
     images: String,
     audio: String,
     app_id: String,
+    actions: String,
 }
 
 #[derive(Clone, Copy)]
@@ -138,7 +145,6 @@ impl Toast {
     /// However, the toast will erroniously report its origin as powershell.
     pub const POWERSHELL_APP_ID: &'static str = "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\
                                                  \\WindowsPowerShell\\v1.0\\powershell.exe";
-
     /// Constructor for the toast builder.
     ///
     /// app_id is the running application's [AppUserModelID][1].
@@ -155,6 +161,7 @@ impl Toast {
             line2: String::new(),
             images: String::new(),
             audio: String::new(),
+            actions: String::new(),
             app_id: app_id.to_string(),
         }
     }
@@ -264,22 +271,20 @@ impl Toast {
         self.audio = match src {
             None => "<audio silent=\"true\" />".to_owned(),
             Some(Sound::Default) => "".to_owned(),
-            Some(Sound::Loop(sound)) => format!(
-                r#"<audio loop="true" src="ms-winsoundevent:Notification.Looping.{}" />"#,
-                sound
-            ),
-            Some(Sound::Single(sound)) => format!(
-                r#"<audio src="ms-winsoundevent:Notification.Looping.{}" />"#,
-                sound
-            ),
+            Some(Sound::Loop(sound)) => format!(r#"<audio loop="true" src="ms-winsoundevent:Notification.Looping.{}" />"#, sound),
+            Some(Sound::Single(sound)) => format!(r#"<audio src="ms-winsoundevent:Notification.Looping.{}" />"#, sound),
             Some(sound) => format!(r#"<audio src="ms-winsoundevent:Notification.{}" />"#, sound),
         };
 
         self
     }
 
-    /// Display the toast on the screen
-    pub fn show(&self) -> windows::Result<()> {
+    pub fn action(mut self, action: &ToastAction) -> Toast {
+        self.actions = format!("{}{}", self.actions, action.to_string());
+        self
+    }
+
+    fn create_template(&self) -> windows::Result<ToastNotification> {
         //using this to get an instance of XmlDocument
         let toast_xml = XmlDocument::new()?;
 
@@ -305,41 +310,142 @@ impl Toast {
                         </binding>
                     </visual>
                     {}
+                    <actions>{}</actions>
                 </toast>",
-            self.duration,
-            template_binding,
-            self.images,
-            self.title,
-            self.line1,
-            self.line2,
-            self.audio,
+            self.duration, template_binding, self.images, self.title, self.line1, self.line2, self.audio, self.actions,
         )))?;
 
-        // Create the toast and attach event listeners
-        let toast_template = ToastNotification::CreateToastNotification(toast_xml)?;
+        // Create the toast
+        ToastNotification::CreateToastNotification(toast_xml)
+    }
+
+    pub fn show_with_action<F: 'static>(&self, on_action: F) -> windows::Result<()>
+    where
+        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>,
+    {
+        self.show_with_optional_action_dismiss_failure(
+            Some(on_action),
+            None::<fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>>,
+            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>>,
+        )
+    }
+
+    pub fn show_with_action_dismiss<F: 'static, F2: 'static>(&self, on_action: F, on_dismiss: F2) -> windows::Result<()>
+    where
+        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>,
+        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>,
+    {
+        self.show_with_optional_action_dismiss_failure(
+            Some(on_action),
+            Some(on_dismiss),
+            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>>,
+        )
+    }
+
+    pub fn show_with_action_dismiss_failure<F: 'static, F2: 'static, F3: 'static>(
+        &self,
+        on_action: F,
+        on_dismiss: F2,
+        on_failure: F3,
+    ) -> windows::Result<()>
+    where
+        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>,
+        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>,
+        F3: Fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>,
+    {
+        self.show_with_optional_action_dismiss_failure(Some(on_action), Some(on_dismiss), Some(on_failure))
+    }
+
+    /// Display the toast on the screen with the following handlers connected
+    pub fn show_with_optional_action_dismiss_failure<F: 'static, F2: 'static, F3: 'static>(
+        &self,
+        on_action: Option<F>,
+        on_dismiss: Option<F2>,
+        on_failure: Option<F3>,
+    ) -> windows::Result<()>
+    where
+        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>,
+        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>,
+        F3: Fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>,
+    {
+        let toast_template = self.create_template()?;
+
+        // wire up actions if they've been set
+        if let Some(action) = on_action {
+            toast_template
+                .Activated(TypedEventHandler::<ToastNotification, ::windows::IInspectable>::new(
+                    move |sender, result| {
+                        if let Some(obj) = &*result {
+                            if let Some(sender) = &*sender {
+                                if let Ok(args) = obj.cast::<ToastActivatedEventArgs>() {
+                                    return action(&sender, &args);
+                                }
+                            }
+                        }
+                        Ok(())
+                    },
+                ))
+                .expect("can this fail?");
+        }
+
+        if let Some(dismissed) = on_dismiss {
+            toast_template
+                .Dismissed(TypedEventHandler::<ToastNotification, ToastDismissedEventArgs>::new(
+                    move |sender, result| {
+                        if let Some(args) = &*result {
+                            if let Some(sender) = &*sender {
+                                return dismissed(&sender, &args);
+                            }
+                        }
+                        Ok(())
+                    },
+                ))
+                .expect("can this fail?");
+        }
+
+        if let Some(failed) = on_failure {
+            toast_template
+                .Failed(TypedEventHandler::<ToastNotification, ToastFailedEventArgs>::new(
+                    move |sender, result| {
+                        if let Some(args) = &*result {
+                            if let Some(sender) = &*sender {
+                                return failed(&sender, &args);
+                            }
+                        }
+                        Ok(())
+                    },
+                ))
+                .expect("can this fail?");
+        }
+
+        let toast_notifier = ToastNotificationManager::CreateToastNotifierWithId(HSTRING::from(&self.app_id))?;
 
         // Show the toast.
-        let toast_notifier =
-            ToastNotificationManager::CreateToastNotifierWithId(HSTRING::from(&self.app_id))?;
         let result = toast_notifier.Show(&toast_template);
         std::thread::sleep(std::time::Duration::from_millis(10));
         result
+    }
+
+    /// Display the toast on the screen
+    pub fn show(&self) -> windows::Result<()> {
+        self.show_with_optional_action_dismiss_failure(
+            None::<fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>>,
+            None::<fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>>,
+            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>>,
+        )
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::*;
-    use std::path::Path;
+    use std::{path::Path, thread::sleep};
 
     #[test]
     fn simple_toast() {
         let toast = Toast::new(Toast::POWERSHELL_APP_ID);
         toast
-            .hero(
-                &Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/test/flower.jpeg"),
-                "flower",
-            )
+            .hero(&Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/test/flower.jpeg"), "flower")
             .icon(
                 &Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/test/chick.jpeg"),
                 IconCrop::Circular,
@@ -348,6 +454,13 @@ mod tests {
             .title("title")
             .text1("line1")
             .text2("line2")
+            .action(
+                &ToastAction::new()
+                    .text("The bird")
+                    .arguments("bird")
+                    .activation_type(ToastActivationType::System),
+            )
+            .action(&ToastAction::new().text("The flower").arguments("flower"))
             .duration(Duration::Short)
             //.sound(Some(Sound::Loop(LoopableSound::Call)))
             //.sound(Some(Sound::SMS))
@@ -355,5 +468,7 @@ mod tests {
             .show()
             // silently consume errors
             .expect("notification failed");
+
+        sleep(std::time::Duration::from_secs(10));
     }
 }

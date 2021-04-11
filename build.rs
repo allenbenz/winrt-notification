@@ -5,6 +5,7 @@ fn main() {
         Windows::Win32::System::SystemInformation::OSVERSIONINFOEXW,
         Windows::Win32::System::SystemInformation::OSVERSIONINFOEXA,
         Windows::Data::Xml::Dom::XmlDocument,
-        Windows::UI::Notifications::{ToastNotification, ToastNotificationManager, ToastNotifier},
+        Windows::Foundation::{TypedEventHandler, EventRegistrationToken},
+        Windows::UI::Notifications::{ToastNotification, ToastNotificationManager, ToastActivatedEventArgs, ToastFailedEventArgs, ToastDismissedEventArgs, ToastNotifier, ToastDismissalReason}
     );
 }
