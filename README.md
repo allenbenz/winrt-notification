@@ -18,8 +18,6 @@ Todo:
 
 Known Issues:
 * Will not work for Windows 7.
-* Requires MSYS to build when targeting gnu toolchain (i686-pc-windows-gnu and x86_64-pc-windows-gnu).
-  - May work with some other method, but the rust gnu toolchain cannot link this crate with just rustup and cargo.
 
 Limitations:
 * Windows 8.1 only supports a single image, the last image (icon, hero, image) will be the one on the toast
