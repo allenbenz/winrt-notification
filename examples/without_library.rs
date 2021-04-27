@@ -14,13 +14,15 @@ mod bindings {
 // and call windows::build! in a build.rs file
 // or have pregenerated code that does the same thing
 use bindings::{
-    windows::data::xml::dom::XmlDocument,
-    windows::ui::notifications::ToastNotification,
-    windows::ui::notifications::ToastNotificationManager,
-    windows::HString,
+    Windows::Data::Xml::Dom::XmlDocument,
+    Windows::UI::Notifications::ToastNotification,
+    Windows::UI::Notifications::ToastNotificationManager,
 };
 
-pub use windows::Error;
+pub use windows::{
+    Error,
+    HString,
+};
 
 fn main() {
     do_toast().expect("not sure if this is actually failable");
@@ -32,7 +34,7 @@ fn main() {
 fn do_toast() -> windows::Result<()> {
     let toast_xml = XmlDocument::new()?;
 
-    toast_xml.load_xml(HString::from(
+    toast_xml.LoadXml(HString::from(
         format!(r#"<toast duration="long">
                 <visual>
                     <binding template="ToastGeneric">
@@ -51,14 +53,14 @@ fn do_toast() -> windows::Result<()> {
     ))).expect("the xml is malformed");
 
     // Create the toast and attach event listeners
-    let toast_template = ToastNotification::create_toast_notification(toast_xml)?;
+    let toast_template = ToastNotification::CreateToastNotification(toast_xml)?;
 
     // If you have a valid app id, (ie installed using wix) then use it here.
-    let toast_notifier = ToastNotificationManager::create_toast_notifier_with_id(HString::from(
+    let toast_notifier = ToastNotificationManager::CreateToastNotifierWithId(HString::from(
         "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe",
     ))?;
 
     // Show the toast.
     // Note this returns success in every case, including when the toast isn't shown.
-    toast_notifier.show(&toast_template)
+    toast_notifier.Show(&toast_template)
 }

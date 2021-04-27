@@ -5,8 +5,8 @@ mod bindings {
 }
 
 use bindings::{
-    windows::win32::system_services::NTSTATUS,
-    windows::win32::windows_programming::*,
+    Windows::Win32::SystemServices::NTSTATUS,
+    Windows::Win32::WindowsProgramming::*,
 };
 
 #[cfg(target_arch = "x86")]
@@ -29,7 +29,7 @@ pub fn is_newer_than_windows81() -> bool {
         let mut info: OSVERSIONINFOEX = OSVERSIONINFOEX::default();
 
         if RtlGetVersion(&mut info) == NTSTATUS(0) {
-            info.dw_major_version > 6
+            info.dwMajorVersion > 6
         } else {
             false
         }

@@ -17,7 +17,7 @@ default-target = "x86_64-pc-windows-msvc"
 [dependencies]
 xml-rs = "0.8.3"
 strum = { version = "0.20", features = ["derive"] }
-windows = "0.3.1"
+windows = "0.8.0"
 
 [build-dependencies]
-windows = "0.3.1"
+windows = "0.8.0"

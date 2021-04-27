@@ -38,10 +38,9 @@ mod bindings {
 }
 
 use bindings::{
-    windows::data::xml::dom::XmlDocument,
-    windows::ui::notifications::ToastNotification,
-    windows::ui::notifications::ToastNotificationManager,
-    windows::HString,
+    Windows::Data::Xml::Dom::XmlDocument,
+    Windows::UI::Notifications::ToastNotification,
+    Windows::UI::Notifications::ToastNotificationManager,
 };
 
 use std::fmt;
@@ -50,7 +49,10 @@ use std::path::Path;
 use xml::escape::escape_str_attribute;
 mod windows_check;
 
-pub use windows::Error;
+pub use windows::{
+    Error,
+    HString,
+};
 
 pub struct Toast {
     duration: String,
@@ -297,7 +299,7 @@ impl Toast {
             }
         };
 
-        toast_xml.load_xml(HString::from(format!(
+        toast_xml.LoadXml(HString::from(format!(
             "<toast {}>
                     <visual>
                         <binding template=\"{}\">
@@ -317,12 +319,12 @@ impl Toast {
         )))?;
 
         // Create the toast and attach event listeners
-        let toast_template = ToastNotification::create_toast_notification(toast_xml)?;
+        let toast_template = ToastNotification::CreateToastNotification(toast_xml)?;
 
         // Show the toast.
         let toast_notifier =
-            ToastNotificationManager::create_toast_notifier_with_id(HString::from(&self.app_id))?;
-        let result = toast_notifier.show(&toast_template);
+            ToastNotificationManager::CreateToastNotifierWithId(HString::from(&self.app_id))?;
+        let result = toast_notifier.Show(&toast_template);
         std::thread::sleep(std::time::Duration::from_millis(10));
         result
     }
