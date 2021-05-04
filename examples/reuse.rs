@@ -17,7 +17,7 @@ fn main() {
         .show()
         // silently consume errors
         .expect("notification failed");
-    
+
     Toast::new(Toast::POWERSHELL_APP_ID)
         .title("another toast")
         .text1("line1")
