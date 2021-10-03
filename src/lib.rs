@@ -32,10 +32,7 @@ extern crate xml;
 #[macro_use]
 extern crate strum;
 
-#[allow(dead_code)]
-mod bindings {
-    ::windows::include_bindings!();
-}
+mod bindings;
 
 use bindings::{
     Windows::Data::Xml::Dom::XmlDocument,
@@ -51,7 +48,7 @@ mod windows_check;
 
 pub use windows::{
     Error,
-    HString,
+    HSTRING,
 };
 
 pub struct Toast {
@@ -299,7 +296,7 @@ impl Toast {
             }
         };
 
-        toast_xml.LoadXml(HString::from(format!(
+        toast_xml.LoadXml(HSTRING::from(format!(
             "<toast {}>
                     <visual>
                         <binding template=\"{}\">
@@ -323,7 +320,7 @@ impl Toast {
 
         // Show the toast.
         let toast_notifier =
-            ToastNotificationManager::CreateToastNotifierWithId(HString::from(&self.app_id))?;
+            ToastNotificationManager::CreateToastNotifierWithId(HSTRING::from(&self.app_id))?;
         let result = toast_notifier.Show(&toast_template);
         std::thread::sleep(std::time::Duration::from_millis(10));
         result
