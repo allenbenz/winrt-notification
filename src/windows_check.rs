@@ -1,12 +1,7 @@
 // Lifted from mattmccarty's work in os_info
-#[allow(dead_code)]
-mod bindings {
-    ::windows::include_bindings!();
-}
-
-use bindings::{
-    Windows::Win32::SystemServices::NTSTATUS,
-    Windows::Win32::WindowsProgramming::*,
+use crate::bindings::Windows::Win32::{
+    Foundation::NTSTATUS,
+    System::SystemInformation::*,
 };
 
 #[cfg(target_arch = "x86")]
