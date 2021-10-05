@@ -1,3 +1,4 @@
+#![feature(raw_dylib)]
 //! An incomplete wrapper over the WinRT toast api
 //!
 //! Tested in Windows 10 and 8.1. Untested in Windows 8, might work.

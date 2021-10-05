@@ -14,7 +14,7 @@ use OSVERSIONINFOEXW;
 #[cfg(not(target_arch = "x86"))]
 type OSVERSIONINFOEX = OSVERSIONINFOEXW;
 
-#[link(name = "ntdll")]
+#[link(name = "ntdll", kind="raw-dylib")]
 extern "system" {
     pub fn RtlGetVersion(lpVersionInformation: &mut OSVERSIONINFOEX) -> NTSTATUS;
 }
