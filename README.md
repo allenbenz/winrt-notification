@@ -10,7 +10,7 @@ Tested in Windows 10 and 8.1. Untested in Windows 8, might work.
 
 [0.2 Documentation](https://allenbenz.github.io/winrt-notification/0_2_0/winrt_notification/index.html)
 
-[0.3 Documentation](https://allenbenz.github.io/winrt-notification/0_3_0/winrt_notification/index.html)
+[0.3/0.4 Documentation](https://allenbenz.github.io/winrt-notification/0_3_0/winrt_notification/index.html)
 
 Todo:
 * Add support for Adaptive Content
@@ -29,7 +29,7 @@ Limitations:
 ```toml
 #Cargo.toml
 [dependencies]
-winrt-notification = "0.2.4"
+winrt-notification = "0.4.0"
 ```
 
 ## Examples

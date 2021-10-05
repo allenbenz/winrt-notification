@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.0
+ - Updated dependencies
+
 ## 0.3.1
  - Allow the crate build with the gnu toolchain with msys [#4][i4]
 
