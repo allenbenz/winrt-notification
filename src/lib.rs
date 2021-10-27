@@ -40,6 +40,7 @@ mod bindings {
 use bindings::{
     Windows::Data::Xml::Dom::XmlDocument,
     Windows::Foundation::TypedEventHandler,
+    Windows::Foundation::IReference,
     Windows::UI::Notifications::ToastNotificationManager,
 };
 use windows::Interface;
@@ -49,11 +50,13 @@ use std::path::Path;
 
 use xml::escape::escape_str_attribute;
 mod toast_action;
+mod toast_input;
 mod windows_check;
 
 pub use windows::{Error, HSTRING};
 
 pub use toast_action::{ToastAction, ToastActivationType};
+pub use toast_input::ToastInput;
 
 pub use bindings::Windows::UI::Notifications::{ToastActivatedEventArgs, ToastDismissedEventArgs, ToastFailedEventArgs, ToastNotification};
 
@@ -77,7 +80,7 @@ pub enum Duration {
     Long,
 }
 
-#[derive(Debug, EnumString, Clone, Copy)]
+#[derive(Display, Debug, EnumString, Clone, Copy)]
 pub enum Sound {
     Default,
     IM,
@@ -94,7 +97,7 @@ pub enum Sound {
 
 /// Sounds suitable for Looping
 #[allow(dead_code)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Display, Debug, Clone, Copy)]
 pub enum LoopableSound {
     Alarm,
     Alarm2,
@@ -123,20 +126,6 @@ pub enum LoopableSound {
 pub enum IconCrop {
     Square,
     Circular,
-}
-
-#[doc(hidden)]
-impl fmt::Display for Sound {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
-    }
-}
-
-#[doc(hidden)]
-impl fmt::Display for LoopableSound {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
-    }
 }
 
 impl Toast {
@@ -276,6 +265,11 @@ impl Toast {
             Some(sound) => format!(r#"<audio src="ms-winsoundevent:Notification.{}" />"#, sound),
         };
 
+        self
+    }
+
+    pub fn input(mut self, input: &ToastInput) -> Toast {
+        self.actions = format!("{}{}", self.actions, input.to_string());
         self
     }
 
@@ -436,6 +430,21 @@ impl Toast {
     }
 }
 
+pub trait UserInputExt {
+    fn lookup<T: ::windows::RuntimeType>(&self, key: &str) -> windows::Result<IReference<T>>;
+    fn lookup_string(&self, key: &str) -> windows::Result<HSTRING>;
+}
+
+impl UserInputExt for ToastActivatedEventArgs {
+    fn lookup<T: windows::RuntimeType>(&self, key: &str) -> windows::Result<IReference<T>> {
+        self.UserInput()?.Lookup(key)?.cast::<IReference<T>>()
+    }
+
+    fn lookup_string(&self, key: &str) -> windows::Result<HSTRING> {
+        self.lookup::<HSTRING>(key)?.GetString()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::*;
@@ -454,6 +463,10 @@ mod tests {
             .title("title")
             .text1("line1")
             .text2("line2")
+            .input(&ToastInput::new("myField")
+                .title("SomeTitle")
+                .place_holder_content("type things here")
+            )
             .action(
                 &ToastAction::new()
                     .text("The bird")
@@ -465,7 +478,13 @@ mod tests {
             //.sound(Some(Sound::Loop(LoopableSound::Call)))
             //.sound(Some(Sound::SMS))
             .sound(None)
-            .show()
+            .show_with_action(|_, args| {
+                println!("{}", args.Arguments()?);
+                if let Ok(my_field) = args.lookup_string("myField") {
+                    println!("{}", my_field)
+                }
+                Ok(())
+            })
             // silently consume errors
             .expect("notification failed");
 

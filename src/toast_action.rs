@@ -5,41 +5,36 @@ mod bindings {
 use std::fmt;
 use xml::escape::escape_str_attribute;
 
-#[derive(Clone, Copy, AsStaticStr)]
+#[derive(Display, Clone, Copy, AsStaticStr)]
+#[strum(serialize_all = "camelCase")]
 pub enum ToastActivationType {
     // Default value. Your foreground app is launched.
-    #[strum(serialize = "foreground")]
     Foreground,
 
     // Your corresponding background task (assuming you set everything up) is triggered, and you can execute code in the background (like sending the user's quick reply message) without interrupting the user.
-    #[strum(serialize = "background")]
     Background,
 
     // Launch a different app using protocol activation.
-    #[strum(serialize = "protocol")]
     Protocol,
 
     // System handles the activation.
-    #[strum(serialize = "system")]
     System,
 }
 
-#[derive(Clone, Copy, AsStaticStr)]
+#[derive(Display, Clone, Copy, AsStaticStr)]
+#[strum(serialize_all = "camelCase")]
 pub enum ToastAfterActivationBehavior {
     // Default behavior. The toast will be dismissed when the user takes action on the toast.
-    #[strum(serialize = "default")]
     Default,
     // After the user clicks a button on your toast, the notification will remain present, in a "pending update" visual state. You should immediately update your toast from a background task so that the user does not see this "pending update" visual state for too long.
-    #[strum(serialize = "pendingUpdate")]
     PendingUpdate,
 }
 
-#[derive(Clone, Copy, AsStaticStr)]
+#[derive(Display, Clone, Copy, AsStaticStr)]
+#[strum(serialize_all = "camelCase")]
 pub enum ToastActionPlacement {
-    #[strum(serialize = "inline")]
     Inline,
 
-    #[strum(serialize = "contextMenu")]
     ContextMenu,
 }
 

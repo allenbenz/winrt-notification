@@ -1,8 +1,16 @@
 extern crate winrt_notification;
 
-use winrt_notification::{
-    Duration, Toast, ToastAction, ToastActivatedEventArgs, ToastNotification,
-};
+use winrt_notification::{Duration, Toast, ToastAction, ToastActivatedEventArgs, ToastNotification};
+
+fn followup(_sender: &ToastNotification, args: &ToastActivatedEventArgs) -> windows::Result<()> {
+    if args.Arguments()? == "bird" {
+        Toast::new(Toast::POWERSHELL_APP_ID)
+            .text1("Really the bird?")
+            .show()
+            .expect("notification failed");
+    }
+    Ok(())
+}
 
 fn main() {
     let toast = Toast::new(Toast::POWERSHELL_APP_ID);
@@ -13,17 +21,12 @@ fn main() {
         .action(&ToastAction::new().text("The flower").arguments("flower"))
         .duration(Duration::Short)
         .sound(None)
-        .show_with_action(
-            |_sender: &ToastNotification, args: &ToastActivatedEventArgs| {
-                if args.Arguments()? == "bird" {
-                    Toast::new(Toast::POWERSHELL_APP_ID)
-                        .text1("Really the bird?")
-                        .show()
-                        .expect("notification failed");
-                }
-                Ok(())
-            }
-        );
+        .show_with_action_dismiss(
+            followup,
+            |_sender, _args| {
+            println!("dismissed");
+            Ok(())
+        });
 
     // Actions only work on running applications
     // (The mechanisms windows provides to avoid that are not set up with this crate)
