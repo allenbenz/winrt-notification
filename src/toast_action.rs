@@ -1,11 +1,7 @@
-mod bindings {
-    ::windows::include_bindings!();
-}
-
 use std::fmt;
 use xml::escape::escape_str_attribute;
 
-#[derive(Display, Clone, Copy, AsStaticStr)]
+#[derive(Display, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum ToastActivationType {
     // Default value. Your foreground app is launched.
@@ -21,7 +17,7 @@ pub enum ToastActivationType {
     System,
 }
 
-#[derive(Display, Clone, Copy, AsStaticStr)]
+#[derive(Display, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum ToastAfterActivationBehavior {
     // Default behavior. The toast will be dismissed when the user takes action on the toast.
@@ -30,7 +26,7 @@ pub enum ToastAfterActivationBehavior {
     PendingUpdate,
 }
 
-#[derive(Display, Clone, Copy, AsStaticStr)]
+#[derive(Display, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum ToastActionPlacement {
     Inline,
@@ -58,6 +54,7 @@ pub struct ToastAction {
 
     placement: ToastActionPlacement,
 
+    // Gets or sets an identifier used in telemetry to identify your category of action. This should be something like "Delete", "Reply", or "Archive". In the upcoming toast telemetry dashboard in Dev Center, you will be able to view how frequently your actions are being clicked.
     hint_action_id: String, // hint-actionId
 }
 
@@ -87,6 +84,7 @@ impl ToastAction {
         self
     }
 
+    // Id of the input this action should be associated with
     pub fn hint_input_id(mut self, hint_input_id: &str) -> ToastAction {
         self.hint_input_id = escape_str_attribute(hint_input_id).to_string();
         self

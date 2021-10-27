@@ -4,22 +4,17 @@ extern crate xml;
 use std::path::Path;
 use xml::escape::escape_str_attribute;
 
-#[allow(dead_code)]
-mod bindings {
-    ::windows::include_bindings!();
-}
-
 // You need to have the windows crate in your Cargo.toml
-//
-// and call windows::build! in a build.rs file
-// or have pregenerated code that does the same thing
-use bindings::{
-    Windows::Data::Xml::Dom::XmlDocument,
-    Windows::UI::Notifications::ToastNotification,
-    Windows::UI::Notifications::ToastNotificationManager,
+// with the following features:
+//    "Data_Xml_Dom"
+//    "UI_Notifications"
+use windows::{
+    Data::Xml::Dom::XmlDocument,
+    UI::Notifications::ToastNotification,
+    UI::Notifications::ToastNotificationManager,
 };
 
-pub use windows::{
+pub use windows::runtime::{
     Error,
     HSTRING,
 };
@@ -31,7 +26,7 @@ fn main() {
     std::thread::sleep(std::time::Duration::from_millis(10));
 }
 
-fn do_toast() -> windows::Result<()> {
+fn do_toast() -> windows::runtime::Result<()> {
     let toast_xml = XmlDocument::new()?;
 
     toast_xml.LoadXml(HSTRING::from(

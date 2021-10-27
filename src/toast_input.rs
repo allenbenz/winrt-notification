@@ -1,11 +1,7 @@
-mod bindings {
-    ::windows::include_bindings!();
-}
-
 use std::fmt;
 use xml::escape::escape_str_attribute;
 
-#[derive(Display, Debug, Clone, Copy, AsStaticStr)]
+#[derive(Display, Debug, Clone, Copy, IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub enum ToastInputType {
     // Textbox

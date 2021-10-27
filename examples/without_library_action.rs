@@ -2,28 +2,27 @@
 
 extern crate xml;
 use std::path::Path;
+use ::windows::runtime::{self, IInspectable};
 use xml::escape::escape_str_attribute;
 
-#[allow(dead_code)]
-mod bindings {
-    ::windows::include_bindings!();
-}
-
 // You need to have the windows crate in your Cargo.toml
-//
-// and call windows::build! in a build.rs file
-// or have pregenerated code that does the same thing
-use bindings::{
-    Windows::Data::Xml::Dom::XmlDocument,
-    Windows::Foundation::TypedEventHandler,
-    Windows::Foundation::IReference,
-    Windows::UI::Notifications::ToastNotification,
-    Windows::UI::Notifications::ToastNotificationManager,
-    Windows::UI::Notifications::{ToastActivatedEventArgs, ToastDismissalReason, ToastDismissedEventArgs, ToastFailedEventArgs},
+// with the following features:
+//    "Data_Xml_Dom"
+//    "Win32_Foundation"
+//    "Foundation_Collections"
+//    "UI_Notifications"
+
+use windows::{
+    Data::Xml::Dom::XmlDocument,
+    Foundation::TypedEventHandler,
+    Foundation::IReference,
+    UI::Notifications::ToastNotification,
+    UI::Notifications::ToastNotificationManager,
+    UI::Notifications::{ToastActivatedEventArgs, ToastDismissalReason, ToastDismissedEventArgs, ToastFailedEventArgs},
 };
 
 //https://social.msdn.microsoft.com/Forums/Windows/en-US/99e0d4bd-07cb-4ebd-8c92-c44ac6e7e5de/toast-notification-dismissed-event-handler-not-called-every-time?forum=windowsgeneraldevelopmentissues
-pub use windows::{Error, HSTRING, Interface};
+pub use windows::runtime::{Error, HSTRING, Interface};
 
 fn main() {
     do_toast().expect("not sure if this is actually failable");
@@ -32,7 +31,7 @@ fn main() {
     std::thread::sleep(std::time::Duration::from_millis(10000));
 }
 
-fn do_toast() -> windows::Result<()> {
+fn do_toast() -> windows::runtime::Result<()> {
     let toast_xml = XmlDocument::new()?;
 
     toast_xml.LoadXml(HSTRING::from(
@@ -63,7 +62,7 @@ fn do_toast() -> windows::Result<()> {
     let toast_notification = ToastNotification::CreateToastNotification(toast_xml)?;
 
     // happens if any of the toasts actions are interacted with (as a popup or in the action center)
-    toast_notification.Activated(TypedEventHandler::<ToastNotification, ::windows::IInspectable>::new(|_sender, result| {
+    toast_notification.Activated(TypedEventHandler::<ToastNotification, IInspectable>::new(|_sender, result| {
         // Activated has the wrong type signature so you have to cast the object
         // Dismissed and Failed have the correct signature so they work without doing this
         if let Some(obj) = &*result {
@@ -120,6 +119,6 @@ fn do_toast() -> windows::Result<()> {
     toast_notifier.Show(&toast_notification)
 }
 
-pub fn user_input_lookup<T: ::windows::RuntimeType>(args: &ToastActivatedEventArgs, key: &str) -> windows::Result<IReference<T>> {
+pub fn user_input_lookup<T: runtime::RuntimeType>(args: &ToastActivatedEventArgs, key: &str) -> windows::runtime::Result<IReference<T>> {
     args.UserInput()?.Lookup(key)?.cast::<IReference<T>>()
 }

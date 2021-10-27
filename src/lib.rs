@@ -26,26 +26,19 @@
 /// for Windows 7 and older support look into Shell_NotifyIcon
 /// https://msdn.microsoft.com/en-us/library/windows/desktop/ee330740(v=vs.85).aspx
 /// https://softwareengineering.stackexchange.com/questions/222339/using-the-system-tray-notification-area-app-in-windows-7
+
+/// For actions look at https://docs.microsoft.com/en-us/dotnet/api/microsoft.toolkit.uwp.notifications.toastactionscustom?view=win-comm-toolkit-dotnet-7.0
 extern crate windows;
 extern crate xml;
 
 #[macro_use]
 extern crate strum;
 
-#[allow(dead_code)]
-mod bindings {
-    ::windows::include_bindings!();
-}
-
-use bindings::{
-    Windows::Data::Xml::Dom::XmlDocument,
-    Windows::Foundation::TypedEventHandler,
-    Windows::Foundation::IReference,
-    Windows::UI::Notifications::ToastNotificationManager,
+use windows::{
+    runtime::Interface, Data::Xml::Dom::XmlDocument, Foundation::IReference, Foundation::TypedEventHandler,
+    UI::Notifications::ToastNotificationManager,
 };
-use windows::Interface;
 
-use std::fmt;
 use std::path::Path;
 
 use xml::escape::escape_str_attribute;
@@ -53,12 +46,12 @@ mod toast_action;
 mod toast_input;
 mod windows_check;
 
-pub use windows::{Error, HSTRING};
+pub use windows::runtime::{Error, HSTRING};
 
 pub use toast_action::{ToastAction, ToastActivationType};
 pub use toast_input::ToastInput;
 
-pub use bindings::Windows::UI::Notifications::{ToastActivatedEventArgs, ToastDismissedEventArgs, ToastFailedEventArgs, ToastNotification};
+pub use windows::UI::Notifications::{ToastActivatedEventArgs, ToastDismissedEventArgs, ToastFailedEventArgs, ToastNotification};
 
 pub struct Toast {
     duration: String,
@@ -278,7 +271,7 @@ impl Toast {
         self
     }
 
-    fn create_template(&self) -> windows::Result<ToastNotification> {
+    fn create_template(&self) -> windows::runtime::Result<ToastNotification> {
         //using this to get an instance of XmlDocument
         let toast_xml = XmlDocument::new()?;
 
@@ -313,61 +306,56 @@ impl Toast {
         ToastNotification::CreateToastNotification(toast_xml)
     }
 
-    pub fn show_with_action<F: 'static>(&self, on_action: F) -> windows::Result<()>
+    pub fn show_with_action<F>(&self, on_action: F) -> windows::runtime::Result<()>
     where
-        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>,
+        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::runtime::Result<()> + 'static,
     {
         self.show_with_optional_action_dismiss_failure(
             Some(on_action),
-            None::<fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>>,
-            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>>,
+            None::<fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::runtime::Result<()>>,
+            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::runtime::Result<()>>,
         )
     }
 
-    pub fn show_with_action_dismiss<F: 'static, F2: 'static>(&self, on_action: F, on_dismiss: F2) -> windows::Result<()>
+    pub fn show_with_action_dismiss<F, F2>(&self, on_action: F, on_dismiss: F2) -> windows::runtime::Result<()>
     where
-        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>,
-        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>,
+        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::runtime::Result<()> + 'static,
+        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::runtime::Result<()> + 'static,
     {
         self.show_with_optional_action_dismiss_failure(
             Some(on_action),
             Some(on_dismiss),
-            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>>,
+            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::runtime::Result<()>>,
         )
     }
 
-    pub fn show_with_action_dismiss_failure<F: 'static, F2: 'static, F3: 'static>(
-        &self,
-        on_action: F,
-        on_dismiss: F2,
-        on_failure: F3,
-    ) -> windows::Result<()>
+    pub fn show_with_action_dismiss_failure<F, F2, F3>(&self, on_action: F, on_dismiss: F2, on_failure: F3) -> windows::runtime::Result<()>
     where
-        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>,
-        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>,
-        F3: Fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>,
+        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::runtime::Result<()> + 'static,
+        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::runtime::Result<()> + 'static,
+        F3: Fn(&ToastNotification, &ToastFailedEventArgs) -> windows::runtime::Result<()> + 'static,
     {
         self.show_with_optional_action_dismiss_failure(Some(on_action), Some(on_dismiss), Some(on_failure))
     }
 
     /// Display the toast on the screen with the following handlers connected
-    pub fn show_with_optional_action_dismiss_failure<F: 'static, F2: 'static, F3: 'static>(
+    pub fn show_with_optional_action_dismiss_failure<F, F2, F3>(
         &self,
         on_action: Option<F>,
         on_dismiss: Option<F2>,
         on_failure: Option<F3>,
-    ) -> windows::Result<()>
+    ) -> windows::runtime::Result<()>
     where
-        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>,
-        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>,
-        F3: Fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>,
+        F: Fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::runtime::Result<()> + 'static,
+        F2: Fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::runtime::Result<()> + 'static,
+        F3: Fn(&ToastNotification, &ToastFailedEventArgs) -> windows::runtime::Result<()> + 'static,
     {
         let toast_template = self.create_template()?;
 
         // wire up actions if they've been set
         if let Some(action) = on_action {
             toast_template
-                .Activated(TypedEventHandler::<ToastNotification, ::windows::IInspectable>::new(
+                .Activated(TypedEventHandler::<ToastNotification, windows::runtime::IInspectable>::new(
                     move |sender, result| {
                         if let Some(obj) = &*result {
                             if let Some(sender) = &*sender {
@@ -421,26 +409,26 @@ impl Toast {
     }
 
     /// Display the toast on the screen
-    pub fn show(&self) -> windows::Result<()> {
+    pub fn show(&self) -> windows::runtime::Result<()> {
         self.show_with_optional_action_dismiss_failure(
-            None::<fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::Result<()>>,
-            None::<fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::Result<()>>,
-            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::Result<()>>,
+            None::<fn(&ToastNotification, &ToastActivatedEventArgs) -> windows::runtime::Result<()>>,
+            None::<fn(&ToastNotification, &ToastDismissedEventArgs) -> windows::runtime::Result<()>>,
+            None::<fn(&ToastNotification, &ToastFailedEventArgs) -> windows::runtime::Result<()>>,
         )
     }
 }
 
 pub trait UserInputExt {
-    fn lookup<T: ::windows::RuntimeType>(&self, key: &str) -> windows::Result<IReference<T>>;
-    fn lookup_string(&self, key: &str) -> windows::Result<HSTRING>;
+    fn lookup<T: windows::runtime::RuntimeType>(&self, key: &str) -> windows::runtime::Result<IReference<T>>;
+    fn lookup_string(&self, key: &str) -> windows::runtime::Result<HSTRING>;
 }
 
 impl UserInputExt for ToastActivatedEventArgs {
-    fn lookup<T: windows::RuntimeType>(&self, key: &str) -> windows::Result<IReference<T>> {
+    fn lookup<T: windows::runtime::RuntimeType>(&self, key: &str) -> windows::runtime::Result<IReference<T>> {
         self.UserInput()?.Lookup(key)?.cast::<IReference<T>>()
     }
 
-    fn lookup_string(&self, key: &str) -> windows::Result<HSTRING> {
+    fn lookup_string(&self, key: &str) -> windows::runtime::Result<HSTRING> {
         self.lookup::<HSTRING>(key)?.GetString()
     }
 }
@@ -463,11 +451,11 @@ mod tests {
             .title("title")
             .text1("line1")
             .text2("line2")
-            .input(&ToastInput::new("myField")
-                .title("SomeTitle")
-                .place_holder_content("type things here")
-            )
-            .action(
+            .input(
+                &ToastInput::new("myField")
+                    .title("SomeTitle")
+                    .place_holder_content("type things here"),
+            ).action(
                 &ToastAction::new()
                     .text("The bird")
                     .arguments("bird")
