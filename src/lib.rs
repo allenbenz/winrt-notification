@@ -10,7 +10,6 @@
 //! Known Issues:
 //!
 //! * Will not work for Windows 7.
-//! * Will not build when targeting the 32-bit gnu toolchain (i686-pc-windows-gnu).
 //!
 //! Limitations:
 //!
