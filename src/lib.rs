@@ -26,30 +26,26 @@
 /// for Windows 7 and older support look into Shell_NotifyIcon
 /// https://msdn.microsoft.com/en-us/library/windows/desktop/ee330740(v=vs.85).aspx
 /// https://softwareengineering.stackexchange.com/questions/222339/using-the-system-tray-notification-area-app-in-windows-7
+
+/// For actions look at https://docs.microsoft.com/en-us/dotnet/api/microsoft.toolkit.uwp.notifications.toastactionscustom?view=win-comm-toolkit-dotnet-7.0
 extern crate windows;
 extern crate xml;
 
 #[macro_use]
 extern crate strum;
 
-mod bindings;
-
-use bindings::{
-    Windows::Data::Xml::Dom::XmlDocument,
-    Windows::UI::Notifications::ToastNotification,
-    Windows::UI::Notifications::ToastNotificationManager,
+use windows::{
+    Data::Xml::Dom::XmlDocument,
+    UI::Notifications::ToastNotificationManager,
 };
 
-use std::fmt;
 use std::path::Path;
 
 use xml::escape::escape_str_attribute;
 mod windows_check;
 
-pub use windows::{
-    Error,
-    HSTRING,
-};
+pub use windows::runtime::{Error, HSTRING};
+pub use windows::UI::Notifications::ToastNotification;
 
 pub struct Toast {
     duration: String,
@@ -70,7 +66,7 @@ pub enum Duration {
     Long,
 }
 
-#[derive(Debug, EnumString, Clone, Copy)]
+#[derive(Display, Debug, EnumString, Clone, Copy)]
 pub enum Sound {
     Default,
     IM,
@@ -87,7 +83,7 @@ pub enum Sound {
 
 /// Sounds suitable for Looping
 #[allow(dead_code)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Display, Debug, Clone, Copy)]
 pub enum LoopableSound {
     Alarm,
     Alarm2,
@@ -118,27 +114,12 @@ pub enum IconCrop {
     Circular,
 }
 
-#[doc(hidden)]
-impl fmt::Display for Sound {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
-    }
-}
-
-#[doc(hidden)]
-impl fmt::Display for LoopableSound {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Debug::fmt(self, f)
-    }
-}
-
 impl Toast {
     /// This can be used if you do not have a AppUserModelID.
     ///
     /// However, the toast will erroniously report its origin as powershell.
     pub const POWERSHELL_APP_ID: &'static str = "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\
                                                  \\WindowsPowerShell\\v1.0\\powershell.exe";
-
     /// Constructor for the toast builder.
     ///
     /// app_id is the running application's [AppUserModelID][1].
@@ -264,22 +245,15 @@ impl Toast {
         self.audio = match src {
             None => "<audio silent=\"true\" />".to_owned(),
             Some(Sound::Default) => "".to_owned(),
-            Some(Sound::Loop(sound)) => format!(
-                r#"<audio loop="true" src="ms-winsoundevent:Notification.Looping.{}" />"#,
-                sound
-            ),
-            Some(Sound::Single(sound)) => format!(
-                r#"<audio src="ms-winsoundevent:Notification.Looping.{}" />"#,
-                sound
-            ),
+            Some(Sound::Loop(sound)) => format!(r#"<audio loop="true" src="ms-winsoundevent:Notification.Looping.{}" />"#, sound),
+            Some(Sound::Single(sound)) => format!(r#"<audio src="ms-winsoundevent:Notification.Looping.{}" />"#, sound),
             Some(sound) => format!(r#"<audio src="ms-winsoundevent:Notification.{}" />"#, sound),
         };
 
         self
     }
 
-    /// Display the toast on the screen
-    pub fn show(&self) -> windows::Result<()> {
+    fn create_template(&self) -> windows::runtime::Result<ToastNotification> {
         //using this to get an instance of XmlDocument
         let toast_xml = XmlDocument::new()?;
 
@@ -315,12 +289,17 @@ impl Toast {
             self.audio,
         )))?;
 
-        // Create the toast and attach event listeners
-        let toast_template = ToastNotification::CreateToastNotification(toast_xml)?;
+        // Create the toast
+        ToastNotification::CreateToastNotification(toast_xml)
+    }
+
+    /// Display the toast on the screen
+    pub fn show(&self) -> windows::runtime::Result<()> {
+        let toast_template = self.create_template()?;
+
+        let toast_notifier = ToastNotificationManager::CreateToastNotifierWithId(HSTRING::from(&self.app_id))?;
 
         // Show the toast.
-        let toast_notifier =
-            ToastNotificationManager::CreateToastNotifierWithId(HSTRING::from(&self.app_id))?;
         let result = toast_notifier.Show(&toast_template);
         std::thread::sleep(std::time::Duration::from_millis(10));
         result
@@ -336,10 +315,7 @@ mod tests {
     fn simple_toast() {
         let toast = Toast::new(Toast::POWERSHELL_APP_ID);
         toast
-            .hero(
-                &Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/test/flower.jpeg"),
-                "flower",
-            )
+            .hero(&Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/test/flower.jpeg"), "flower")
             .icon(
                 &Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/test/chick.jpeg"),
                 IconCrop::Circular,
