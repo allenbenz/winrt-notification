@@ -8,9 +8,8 @@ An incomplete wrapper over the WinRT toast api
 
 Tested in Windows 10 and 8.1. Untested in Windows 8, might work.
 
+[0.5 Documentation](https://allenbenz.github.io/winrt-notification/0_5_0/winrt_notification/index.html)
 [0.2 Documentation](https://allenbenz.github.io/winrt-notification/0_2_0/winrt_notification/index.html)
-
-[0.3/0.4 Documentation](https://allenbenz.github.io/winrt-notification/0_3_0/winrt_notification/index.html)
 
 Todo:
 * Add support for Adaptive Content
@@ -27,7 +26,7 @@ Limitations:
 ```toml
 #Cargo.toml
 [dependencies]
-winrt-notification = "0.4.0"
+winrt-notification = "0.5.0"
 ```
 
 ## Examples

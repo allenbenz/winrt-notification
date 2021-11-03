@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0
+ - Updated dependencies
+ - Added support for gnu targets without msys
+
 ## 0.4.0
  - Updated dependencies
 

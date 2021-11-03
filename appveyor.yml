@@ -59,7 +59,6 @@ environment:
       #cargoflags: --features "unstable"
 
 ### GNU Toolchains ###
-  # known to be broken, uncomment when fixed
   # Stable 64-bit GNU
     - channel: stable
       target: x86_64-pc-windows-gnu
