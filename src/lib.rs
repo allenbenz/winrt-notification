@@ -62,6 +62,7 @@ pub struct Toast {
     audio: String,
     app_id: String,
     actions: String,
+    scenario: String,
 }
 
 #[derive(Clone, Copy)]
@@ -121,6 +122,14 @@ pub enum IconCrop {
     Circular,
 }
 
+#[allow(dead_code)]
+#[derive(Clone, Copy)]
+pub enum Scenario {
+    Alarm,
+    Reminder,
+    IncomingCall,
+}
+
 pub type Result<T> = windows::runtime::Result<T>;
 
 impl Toast {
@@ -147,6 +156,7 @@ impl Toast {
             audio: String::new(),
             actions: String::new(),
             app_id: app_id.to_string(),
+            scenario: String::new(),
         }
     }
 
@@ -186,6 +196,21 @@ impl Toast {
         .to_owned();
         self
     }
+
+    /// Set the scenario of the toast
+    /// 
+    /// The system keeps the notification on screen until the user acts upon/dismisses it.
+    /// The system also plays the suitable notification sound as well.
+    pub fn scenario(mut self, scenario: Scenario) -> Toast {
+        self.scenario = match scenario {
+            Scenario::Alarm => "scenario=\"alarm\"",
+            Scenario::Reminder => "scenario=\"reminder\"",
+            Scenario::IncomingCall => "scenario=\"incomingCall\"",
+        }
+        .to_owned();
+        self
+    }
+
 
     /// Set the icon shown in the upper left of the toast
     ///
@@ -291,7 +316,7 @@ impl Toast {
         };
 
         toast_xml.LoadXml(HSTRING::from(format!(
-            "<toast {}>
+            "<toast {} {}>
                     <visual>
                         <binding template=\"{}\">
                         {}
@@ -301,7 +326,7 @@ impl Toast {
                     {}
                     <actions>{}</actions>
                 </toast>",
-            self.duration, template_binding, self.images, self.title, self.line1, self.line2, self.audio, self.actions,
+            self.duration, self.scenario, template_binding, self.images, self.title, self.line1, self.line2, self.audio, self.actions,
         )))?;
 
         // Create the toast
