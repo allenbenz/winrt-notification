@@ -1,8 +1,8 @@
 extern crate winrt_notification;
 
-use winrt_notification::{Duration, Toast, ToastAction, ToastActivatedEventArgs, ToastNotification};
+use winrt_notification::{Duration, Toast, ToastAction, ToastActivatedEventArgs, ToastNotification, Result};
 
-fn followup(_sender: &ToastNotification, args: &ToastActivatedEventArgs) -> windows::runtime::Result<()> {
+fn followup(_sender: &ToastNotification, args: &ToastActivatedEventArgs) -> Result<()> {
     if args.Arguments()? == "bird" {
         Toast::new(Toast::POWERSHELL_APP_ID)
             .text1("Really the bird?")
