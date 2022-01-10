@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+ - Re-export windows::runtime::Result
+
 ## 0.5.0
  - Updated dependencies
  - Added support for gnu targets without msys

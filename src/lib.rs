@@ -43,7 +43,7 @@ use std::path::Path;
 use xml::escape::escape_str_attribute;
 mod windows_check;
 
-pub use windows::runtime::{Error, HSTRING};
+pub use windows::runtime::{Error, HSTRING, Result};
 pub use windows::UI::Notifications::ToastNotification;
 
 pub struct Toast {
