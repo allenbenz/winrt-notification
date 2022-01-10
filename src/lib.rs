@@ -43,7 +43,7 @@ use std::path::Path;
 use xml::escape::escape_str_attribute;
 mod windows_check;
 
-pub use windows::runtime::{Error, HSTRING};
+pub use windows::runtime::{Error, HSTRING, Result};
 pub use windows::UI::Notifications::ToastNotification;
 
 pub struct Toast {
@@ -54,6 +54,7 @@ pub struct Toast {
     images: String,
     audio: String,
     app_id: String,
+    scenario: String,
 }
 
 #[derive(Clone, Copy)]
@@ -113,6 +114,19 @@ pub enum IconCrop {
     Circular,
 }
 
+#[allow(dead_code)]
+#[derive(Clone, Copy)]
+pub enum Scenario {
+    /// The normal toast behavior.
+    Default,
+    /// This will be displayed pre-expanded and stay on the user's screen till dismissed. Audio will loop by default and will use alarm audio.
+    Alarm,
+    /// This will be displayed pre-expanded and stay on the user's screen till dismissed..
+    Reminder,
+    /// This will be displayed pre-expanded in a special call format and stay on the user's screen till dismissed. Audio will loop by default and will use ringtone audio.
+    IncomingCall,
+}
+
 impl Toast {
     /// This can be used if you do not have a AppUserModelID.
     ///
@@ -136,6 +150,7 @@ impl Toast {
             images: String::new(),
             audio: String::new(),
             app_id: app_id.to_string(),
+            scenario: String::new(),
         }
     }
 
@@ -175,6 +190,22 @@ impl Toast {
         .to_owned();
         self
     }
+
+    /// Set the scenario of the toast
+    ///
+    /// The system keeps the notification on screen until the user acts upon/dismisses it.
+    /// The system also plays the suitable notification sound as well.
+    pub fn scenario(mut self, scenario: Scenario) -> Toast {
+        self.scenario = match scenario {
+            Scenario::Default => "",
+            Scenario::Alarm => "scenario=\"alarm\"",
+            Scenario::Reminder => "scenario=\"reminder\"",
+            Scenario::IncomingCall => "scenario=\"incomingCall\"",
+        }
+        .to_owned();
+        self
+    }
+
 
     /// Set the icon shown in the upper left of the toast
     ///
@@ -270,7 +301,7 @@ impl Toast {
         };
 
         toast_xml.LoadXml(HSTRING::from(format!(
-            "<toast {}>
+            "<toast {} {}>
                     <visual>
                         <binding template=\"{}\">
                         {}
@@ -280,6 +311,7 @@ impl Toast {
                     {}
                 </toast>",
             self.duration,
+            self.scenario,
             template_binding,
             self.images,
             self.title,
