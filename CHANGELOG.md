@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.5.1
  - Re-export windows::runtime::Result
  - Add support for scenarios
 

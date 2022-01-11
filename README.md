@@ -27,7 +27,7 @@ Limitations:
 ```toml
 #Cargo.toml
 [dependencies]
-winrt-notification = "0.5.0"
+winrt-notification = "0.5.1"
 ```
 
 ## Examples
