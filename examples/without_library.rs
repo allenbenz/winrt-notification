@@ -14,7 +14,7 @@ use windows::{
     UI::Notifications::ToastNotificationManager,
 };
 
-pub use windows::runtime::{
+pub use windows::core::{
     Error,
     HSTRING,
 };
@@ -26,7 +26,7 @@ fn main() {
     std::thread::sleep(std::time::Duration::from_millis(10));
 }
 
-fn do_toast() -> windows::runtime::Result<()> {
+fn do_toast() -> windows::core::Result<()> {
     let toast_xml = XmlDocument::new()?;
 
     toast_xml.LoadXml(HSTRING::from(
