@@ -55,6 +55,7 @@ pub struct Toast {
     audio: String,
     app_id: String,
     scenario: String,
+    header: String,
 }
 
 #[derive(Clone, Copy)]
@@ -127,6 +128,32 @@ pub enum Scenario {
     IncomingCall,
 }
 
+/// Specifies a custom header that groups multiple notifications together within Action Center.
+///
+/// See <https://docs.microsoft.com/en-us/uwp/schemas/tiles/toastschema/element-header>
+#[derive(Debug, Clone, Default)]
+pub struct Header {
+    /// A developer-created identifier that uniquely identifies this header.
+    /// If two notifications have the same header id, they will be displayed underneath the same header in Action Center.
+    id: String,
+    /// A title for the header.
+    title: String,
+    /// A developer-defined string of arguments that is returned to the app when the user clicks this header.
+    arguments: String,
+}
+
+impl Header {
+    /// Create a [`Header`] and set `id` to `title`
+    pub fn from_title<S: ToString>(title: S) -> Self {
+        let title = title.to_string();
+        Self {
+            id: title.clone(),
+            title,
+            arguments: String::new(),
+        }
+    }
+}
+
 impl Toast {
     /// This can be used if you do not have a AppUserModelID.
     ///
@@ -151,6 +178,7 @@ impl Toast {
             audio: String::new(),
             app_id: app_id.to_string(),
             scenario: String::new(),
+            header: String::new(),
         }
     }
 
@@ -283,6 +311,16 @@ impl Toast {
         self
     }
 
+    /// Specifies a custom header that groups multiple notifications together within Action Center.
+    pub fn header(mut self, header: Header) -> Toast {
+        self.header = format!(r#"<header id="{}" title="{}" arguments="{}"/>"#,
+            escape_str_attribute(&header.id),
+            escape_str_attribute(&header.title),
+            escape_str_attribute(&header.arguments),
+        );
+        self
+    }
+
     fn create_template(&self) -> windows::runtime::Result<ToastNotification> {
         //using this to get an instance of XmlDocument
         let toast_xml = XmlDocument::new()?;
@@ -302,6 +340,7 @@ impl Toast {
 
         toast_xml.LoadXml(HSTRING::from(format!(
             "<toast {} {}>
+                    {}
                     <visual>
                         <binding template=\"{}\">
                         {}
@@ -312,6 +351,7 @@ impl Toast {
                 </toast>",
             self.duration,
             self.scenario,
+            self.header,
             template_binding,
             self.images,
             self.title,
