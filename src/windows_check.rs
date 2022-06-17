@@ -18,7 +18,9 @@ mod internal {
     #[allow(non_snake_case)]
     pub unsafe fn RtlGetNtVersionNumbers(major: *mut u32, minor: *mut u32, build: *mut u32) {
         if CacheRtlGetNtVersionNumbers.is_none() {
-            CacheRtlGetNtVersionNumbers = GetProcAddress(GetModuleHandleA("ntdll.dll"), "RtlGetNtVersionNumbers");
+            if let Ok(handle) = GetModuleHandleA("ntdll.dll") {
+                CacheRtlGetNtVersionNumbers = GetProcAddress(handle, "RtlGetNtVersionNumbers");
+            }
         }
 
         if let Some(RtlGetNtVersionNumbers_FUNCTION) = CacheRtlGetNtVersionNumbers {
