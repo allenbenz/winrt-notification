@@ -300,7 +300,7 @@ impl Toast {
             }
         };
 
-        toast_xml.LoadXml(HSTRING::from(format!(
+        toast_xml.LoadXml(&HSTRING::from(format!(
             "<toast {} {}>
                     <visual>
                         <binding template=\"{}\">
@@ -321,14 +321,14 @@ impl Toast {
         )))?;
 
         // Create the toast
-        ToastNotification::CreateToastNotification(toast_xml)
+        ToastNotification::CreateToastNotification(&toast_xml)
     }
 
     /// Display the toast on the screen
     pub fn show(&self) -> windows::core::Result<()> {
         let toast_template = self.create_template()?;
 
-        let toast_notifier = ToastNotificationManager::CreateToastNotifierWithId(HSTRING::from(&self.app_id))?;
+        let toast_notifier = ToastNotificationManager::CreateToastNotifierWithId(&HSTRING::from(&self.app_id))?;
 
         // Show the toast.
         let result = toast_notifier.Show(&toast_template);
