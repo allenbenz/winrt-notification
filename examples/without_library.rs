@@ -14,7 +14,7 @@ use windows::{
     UI::Notifications::ToastNotificationManager,
 };
 
-pub use windows::runtime::{
+pub use windows::core::{
     Error,
     HSTRING,
 };
@@ -26,10 +26,10 @@ fn main() {
     std::thread::sleep(std::time::Duration::from_millis(10));
 }
 
-fn do_toast() -> windows::runtime::Result<()> {
+fn do_toast() -> windows::core::Result<()> {
     let toast_xml = XmlDocument::new()?;
 
-    toast_xml.LoadXml(HSTRING::from(
+    toast_xml.LoadXml(&HSTRING::from(
         format!(r#"<toast duration="long">
                 <visual>
                     <binding template="ToastGeneric">
@@ -48,10 +48,10 @@ fn do_toast() -> windows::runtime::Result<()> {
     ))).expect("the xml is malformed");
 
     // Create the toast and attach event listeners
-    let toast_template = ToastNotification::CreateToastNotification(toast_xml)?;
+    let toast_template = ToastNotification::CreateToastNotification(&toast_xml)?;
 
     // If you have a valid app id, (ie installed using wix) then use it here.
-    let toast_notifier = ToastNotificationManager::CreateToastNotifierWithId(HSTRING::from(
+    let toast_notifier = ToastNotificationManager::CreateToastNotifierWithId(&HSTRING::from(
         "{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe",
     ))?;
 
