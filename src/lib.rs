@@ -15,6 +15,7 @@
 //!
 //! * Windows 8.1 only supports a single image, the last image (icon, hero, image) will be the one on the toast
 
+extern crate quick_xml;
 /// for xml schema details check out:
 ///
 /// * https://docs.microsoft.com/en-us/uwp/schemas/tiles/toastschema/root-elements
@@ -28,7 +29,6 @@
 
 /// For actions look at https://docs.microsoft.com/en-us/dotnet/api/microsoft.toolkit.uwp.notifications.toastactionscustom?view=win-comm-toolkit-dotnet-7.0
 extern crate windows;
-extern crate xml;
 
 #[macro_use]
 extern crate strum;
@@ -40,7 +40,8 @@ use windows::{
 
 use std::path::Path;
 
-use xml::escape::escape_str_attribute;
+use quick_xml::escape::escape as escape_attr;
+use std::borrow::Cow;
 mod windows_check;
 
 pub use windows::runtime::{Error, HSTRING, Result};
@@ -334,6 +335,15 @@ impl Toast {
         let result = toast_notifier.Show(&toast_template);
         std::thread::sleep(std::time::Duration::from_millis(10));
         result
+    }
+}
+
+fn escape_str_attribute(s: &str) -> Cow<'_, str> {
+    let escaped = escape_attr(s.as_bytes());
+    match escaped {
+        Cow::Borrowed(_) => Cow::Borrowed(s),
+        // This is safe because we know that the string was valid UTF-8
+        Cow::Owned(e) => Cow::Owned(String::from_utf8(e).unwrap()),
     }
 }
 
