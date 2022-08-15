@@ -15,7 +15,7 @@ edition = '2018'
 default-target = "x86_64-pc-windows-msvc"
 
 [dependencies]
-xml-rs = "0.8.4"
+quick-xml = "0.23.0"
 strum = { version = "0.22.0", features = ["derive"] }
 
 [target.'cfg(target_env = "msvc")'.dependencies.windows]

@@ -1,8 +1,8 @@
 // How to create a toast without using this library
 
-extern crate xml;
+extern crate quick_xml;
+use quick_xml::escape::escape;
 use std::path::Path;
-use xml::escape::escape_str_attribute;
 
 // You need to have the windows crate in your Cargo.toml
 // with the following features:
@@ -44,7 +44,7 @@ fn do_toast() -> windows::runtime::Result<()> {
                 <audio src="ms-winsoundevent:Notification.SMS" />
                 <!-- <audio silent="true" /> -->
             </toast>"#,
-        escape_str_attribute(&Path::new("C:\\path_to_image_in_toast.jpg").display().to_string()),
+        std::str::from_utf8(escape(Path::new("C:\\path_to_image_in_toast.jpg").display().to_string().as_bytes()).as_ref()).expect("valid utf8"),
     ))).expect("the xml is malformed");
 
     // Create the toast and attach event listeners
